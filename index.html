@@ -60,9 +60,21 @@ class Layer {
 		this.prevpoint.y = y;
 	}
 
+	ruler_render(x,y){
+		flatten_image();
+		var canvas = document.getElementById('cl');
+		var ctx = canvas.getContext('2d');
+		ctx.strokeStyle = curcol;
+		ctx.lineWidth = thickness;
+		ctx.beginPath();
+		ctx.moveTo(this.prevpoint.x, this.prevpoint.y); 
+		ctx.lineTo(x, y);
+		ctx.stroke();
+	}
+
 	ruler_end(x,y){
+		flatten_image();
 		var ctx = this.canvas.getContext('2d');
-		ctx.fillStyle = curcol;
 		ctx.strokeStyle = curcol;
 		ctx.lineWidth = thickness;
 		ctx.beginPath();
@@ -208,7 +220,7 @@ function new_layer(){
   vischeck.setAttribute("onclick","layers["+(layers.length-1)+"].setvisible()");
   newplate.appendChild(vischeck);
   var ll = document.getElementById("layerslist");
-  ll.insertBefore(document.createElement("br"), ll.firstChild);
+  //ll.insertBefore(document.createElement("br"), ll.firstChild);
   ll.insertBefore(newplate, ll.firstChild);
   activelayer = layers.length-1;
 }
@@ -284,6 +296,12 @@ function action_process(){
 				layers[activelayer].draw_pen(event.clientX - rect.left,event.clientY - rect.top);
 				flatten_image();
 				//ctx.putImageData(layers[activelayer].getdata(), 0, 0);
+				break;
+			case "ruler":
+				var canvas = document.getElementById('cl');
+				var ctx = canvas.getContext('2d');
+				var rect = canvas.getBoundingClientRect();
+				layers[activelayer].ruler_render(event.clientX - rect.left,event.clientY - rect.top);
 				break;
 		}
 	}
@@ -440,12 +458,29 @@ function calc_for_point(step, sp){
 				<br>
 				<input type="range" id="thickness" min="1" max="64" step="1" value="1" style="width: 172px; margin:0px" onclick="update_properties('thickness')">
 			</div>
-			<div>
-				<div class="layers_button" onclick="new_layer()">
-					<img src="icons/plus-square-line.png">
+			<div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+				<div>
+					<div class="layers_button" onclick="new_layer()">
+						<img src="icons/plus-square-line.png">
+					</div>
+				</div>
+				<div>
+					<div class="layers_button" onclick="new_layer()">
+						<img src="icons/plus-square-line.png">
+					</div>
+				</div>
+				<div>
+					<div class="layers_button" onclick="new_layer()">
+						<img src="icons/plus-square-line.png">
+					</div>
+				</div>
+				<div>
+					<div class="layers_button" onclick="new_layer()">
+						<img src="icons/plus-square-line.png">
+					</div>
 				</div>
 			</div>
-			<div id="layerslist">
+			<div id="layerslist" style="display: contents;">
 				<div class="layer_plate" onclick="switch_to_layer(0)">
 					Background
 					<input type="checkbox" id="visibility0" checked="true" onclick="layers[0].setvisible()">

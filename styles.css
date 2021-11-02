@@ -7,7 +7,7 @@
 }
 
 .layers_button{
-	width: 56px;
+	width: 52px;
 	height: 42px;
 	background-color: #5099f4;
 	display: table-cell;
@@ -17,9 +17,11 @@
 .layer_plate{
 	width: 212px;
 	height: 56px;
+	display: block;
 	background-color: #5099f4;
 	display: table-cell;
 	vertical-align: middle;
+	border-bottom: 40px;
 	text-align: middle;
 }
 

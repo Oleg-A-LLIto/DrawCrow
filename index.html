@@ -384,6 +384,15 @@ function action_interrupted(){
 
 function set_tool(tl){
 	tool = tl;
+	tools = document.getElementsByClassName("tool_button");
+	for(let i = 0; i<tools.length; i++){
+		if(tools[i].id == ("button_"+tool)){
+			tools[i].classList.add("selected");
+		}
+		else{
+			tools[i].classList.remove("selected");
+		}
+	}
 }
 
 function set_point()
@@ -471,19 +480,19 @@ function calc_for_point(step, sp){
 <div style="display: flex; text-align:center;">
 	<div style="margin-left: auto; margin-right: auto; display: flex;">
 		<div style="display: flex; flex-direction: column;">
-			<div class="tool_button" onclick="set_tool('brush')">
+			<div class="tool_button left_sidebar_button selected" id="button_brush" onclick="set_tool('brush')">
 				<img style="align-self: center;" src="icons/paint-brush.png">
 			</div>
-			<div class="tool_button" onclick="set_tool('fill')">
+			<div class="tool_button left_sidebar_button" id="button_fill" onclick="set_tool('fill')">
 				<img style="align-self: center;" src="icons/color-fill-tool.png">
 			</div>
-			<div class="tool_button" onclick="set_tool('ruler')">
+			<div class="tool_button left_sidebar_button" id="button_ruler" onclick="set_tool('ruler')">
 				<img style="align-self: center;" src="icons/ruler-measurement.png">
 			</div>
-			<div class="tool_button" onclick="set_tool('eraser')">
+			<div class="tool_button left_sidebar_button" id="button_eraser" onclick="set_tool('eraser')">
 				<img style="align-self: center;" src="icons/eraser.png">
 			</div>
-			<div class="tool_button" onclick="cancel()">
+			<div class="left_sidebar_button" onclick="cancel()">
 				<img style="align-self: center;" src="icons/reply-arrow.png">
 			</div>
 		</div>

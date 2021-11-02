@@ -1,0 +1,30 @@
+.tool_button{
+	width: 72px;
+	height: 72px;
+	background-color: #5099f4;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.layers_button{
+	width: 56px;
+	height: 42px;
+	background-color: #5099f4;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.layer_plate{
+	width: 212px;
+	height: 56px;
+	background-color: #5099f4;
+	display: table-cell;
+	vertical-align: middle;
+	text-align: middle;
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+    background-color: silver;
+}
+

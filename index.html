@@ -1,0 +1,451 @@
+<html>
+<link rel="stylesheet" type="text/css" href="styles.css">
+<script>
+
+const width = 960;
+const height = 720;
+var tool = "brush";
+var red = 0;
+var green = 0;
+var blue = 0;
+var alpha = 255;
+var curcol = "#000000";
+var seccol = "#FFFFFF"
+var layers = [];
+
+class Layer {
+
+	constructor(id) {
+		this.name = "Layer"+id;
+		this.id = id;
+		this.w = width;
+		this.h = height;
+		this.prevpoint = {x: -1, y: -1};
+		this.canvas = new OffscreenCanvas(this.w, this.h);
+		this.visible = true;
+	}
+
+	setvisible(){
+		this.visible = document.getElementById('visibility'+this.id).checked;
+		flatten_image();
+	}
+
+	draw_pen(x,y){
+		var ctx = this.canvas.getContext('2d');
+		ctx.fillStyle = curcol;
+		ctx.strokeStyle = curcol;
+		ctx.lineWidth = 1;
+		if(thickness>1){
+			ctx.beginPath();
+			ctx.arc(x, y, (thickness-1)/2,  0, 360);
+			ctx.fill();
+		}
+		if(this.prevpoint.x!=-1){
+			ctx.lineWidth = thickness;
+			ctx.beginPath();
+			ctx.moveTo(this.prevpoint.x, this.prevpoint.y); 
+		    ctx.lineTo(x, y);
+		    ctx.stroke();
+		}
+		this.prevpoint.x = x;
+		this.prevpoint.y = y;
+	}
+
+	clear_pen(){
+		this.prevpoint.x = -1;
+	}
+
+	ruler_start(x,y){
+		this.prevpoint.x = x;
+		this.prevpoint.y = y;
+	}
+
+	ruler_end(x,y){
+		var ctx = this.canvas.getContext('2d');
+		ctx.fillStyle = curcol;
+		ctx.strokeStyle = curcol;
+		ctx.lineWidth = thickness;
+		ctx.beginPath();
+		ctx.moveTo(this.prevpoint.x, this.prevpoint.y); 
+		ctx.lineTo(x, y);
+		ctx.stroke();
+		this.prevpoint.x = -1;
+	}
+
+	fill(x,y){
+		x = Math.round(x);
+		y = Math.round(y);
+		var ctx = this.canvas.getContext('2d');
+		ctx.fillStyle = curcol;
+		var oldcolor = this.getpixel(ctx,x,y);
+		var stk = [];
+		var lim = 9999999999;
+		stk.push({x: x,y: y, dir: -1});
+		while ((stk.length > 0) && (lim >=0)){
+			lim--;
+			var curpix = stk.pop();
+			ctx.fillRect(curpix.x,curpix.y,1,1);
+			if((x>0) && (x<this.w) && (y>0) && (y<this.h)){
+				switch(curpix.dir){
+		  		case(1):
+		  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
+		  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
+						if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
+		  			break;
+		  		case(2):
+		  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
+		  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
+		  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
+		  			break;
+		  		case(3):
+		  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
+		  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
+						if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
+		  			break;
+		  		case(4):
+		  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
+		  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
+						if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
+		  			break;
+		  		case(-1):
+		  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
+		  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
+		  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
+						if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
+						break;
+				}
+			}
+		}
+	}
+
+	getpixel(ctx,x,y){
+		var pix = ctx.getImageData(x,y,1,1).data;
+		return "rgba("+pix[0]+","+pix[1]+","+pix[2]+","+pix[3]+");";
+	}
+
+/*
+  fill(x,y){
+  	alert('lol');
+  	var ctx = this.canvas.getContext('2d');
+  	var oldpixel = ctx.getImageData(x,y,1,1).data;
+  	var oldcolor = "rgba("+oldpixel[0]+","+oldpixel[1]+","+oldpixel[2]+","+oldpixel[3]+");"
+  	alert(oldcolor);
+  	this.recursive_fill(x+1,y,oldcolor,1);
+  	this.recursive_fill(x,y+1,oldcolor,2);
+  	this.recursive_fill(x-1,y,oldcolor,3);
+  	this.recursive_fill(x,y-1,oldcolor,4);
+  }
+
+  recursive_fill(x,y,oldcolor,dir){
+  	if((x>0) && (x<this.w) && (y>0) && (y<this.h)){
+  		var ctx = this.canvas.getContext('2d');
+	  	var localpixel = ctx.getImageData(x,y,1,1).data;
+	  	var localcolor = "rgba("+localpixel[0]+","+localpixel[1]+","+localpixel[2]+","+localpixel[3]+");"
+	  	if (localcolor == oldcolor){
+	  		ctx.fillStyle = curcol;
+			ctx.fillRect( x, y, 1, 1 );
+		  	switch(dir){
+		  		case(1):
+		  			this.recursive_fill(x+1,y,oldcolor,1);
+				  	this.recursive_fill(x,y+1,oldcolor,2);
+				  	this.recursive_fill(x,y-1,oldcolor,4);
+		  			break;
+		  		case(2):
+		  			this.recursive_fill(x+1,y,oldcolor,1);
+				  	this.recursive_fill(x,y+1,oldcolor,2);
+				  	this.recursive_fill(x-1,y,oldcolor,3);
+		  			break;
+		  		case(3):
+				  	this.recursive_fill(x,y+1,oldcolor,2);
+				  	this.recursive_fill(x-1,y,oldcolor,3);
+				  	this.recursive_fill(x,y-1,oldcolor,4);
+		  			break;
+		  		case(4):
+		  			this.recursive_fill(x+1,y,oldcolor,1);
+				  	this.recursive_fill(x-1,y,oldcolor,3);
+				  	this.recursive_fill(x,y-1,oldcolor,4);
+		  			break;
+		  	}
+	  	}
+  	}
+  }
+ */
+
+	getdata() {
+		return this.canvas.getContext('2d').getImageData(0, 0, this.w, this.h);
+	}
+}
+
+var p = [];
+var k = 0;
+var thickness = 1;
+var layer_increment = 1;
+var activelayer = 0;
+var newl = new Layer(0);
+layers.push(newl);
+var action_ongoing = false;
+
+function get_picture(){
+	
+}
+
+function switch_to_layer(laynum){
+	activelayer = laynum;
+}
+
+function new_layer(){
+	var laynum = layer_increment++;
+	var newl = new Layer(laynum);
+	layers.push(newl);
+	let newplate = document.createElement("div");
+	newplate.setAttribute("onclick","switch_to_layer("+(layers.length-1)+");");
+	newplate.classList.add("layer_plate");
+  newplate.appendChild(document.createTextNode("Layer"+laynum));
+  let vischeck = document.createElement("input"); 
+  vischeck.setAttribute("id","visibility"+laynum);
+  vischeck.setAttribute("type","checkbox");
+  vischeck.setAttribute("checked","true");
+  vischeck.setAttribute("onclick","layers["+(layers.length-1)+"].setvisible()");
+  newplate.appendChild(vischeck);
+  var ll = document.getElementById("layerslist");
+  ll.insertBefore(document.createElement("br"), ll.firstChild);
+  ll.insertBefore(newplate, ll.firstChild);
+  activelayer = layers.length-1;
+}
+
+function flatten_image(){
+	var canvas = document.getElementById('cl');
+	var ctx = canvas.getContext('2d');
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, width, height);
+	var imgData = ctx.getImageData(0, 0, width, height);
+	var data = imgData.data;
+	for(i = 0; i < layers.length; i++){
+		if(layers[i].visible==false)
+			continue;
+		data2 = layers[i].getdata().data;
+		for (var j = 0; j < data.length; j += 4) { 
+			var culling = 255 - (data2[j+3] + data[j+3]);
+			if (culling > 0) culling = 0;
+			var ratio = data2[j+3]/(data2[j+3] + data[j+3] + culling);
+			data[j] = data2[j]*ratio + data[j]*(1-ratio); // red
+			data[j+1] = data2[j+1]*ratio + data[j+1]*(1-ratio);//green
+			data[j+2] = data2[j+2]*ratio + data[j+2]*(1-ratio); //blue
+			data[j+3] = Math.min(data2[j+3] + data[j+3], 255);
+		}
+		imgData.data = data;
+		ctx.putImageData(imgData, 0, 0);
+	}
+}
+
+function addElement () {
+  // create a new div element
+  const newDiv = document.createElement("div");
+
+
+}
+
+function update_color(){
+	curcol = document.getElementById('col1').value;
+	seccol = document.getElementById('col2').value;
+}
+
+function current_color() {
+	return curcol;
+}
+
+function action_start(){
+	action_ongoing = true;
+	switch (tool){
+		case "ruler":
+			var canvas = document.getElementById('cl');
+			var ctx = canvas.getContext('2d');
+			var rect = canvas.getBoundingClientRect();
+			layers[activelayer].ruler_start(event.clientX - rect.left,event.clientY - rect.top);
+			break;
+	}
+}
+
+function action_process(){
+	if (action_ongoing){
+		switch (tool){
+			case "brush":
+				var canvas = document.getElementById('cl');
+				var ctx = canvas.getContext('2d');
+				var rect = canvas.getBoundingClientRect();
+				layers[activelayer].draw_pen(event.clientX - rect.left,event.clientY - rect.top);
+				flatten_image();
+				//ctx.putImageData(layers[activelayer].getdata(), 0, 0);
+				break;
+		}
+	}
+}
+
+
+function action_end(){
+	action_ongoing = false;
+	switch (tool){
+		case "ruler":
+			var canvas = document.getElementById('cl');
+			var ctx = canvas.getContext('2d');
+			var rect = canvas.getBoundingClientRect();
+			layers[activelayer].ruler_end(event.clientX - rect.left,event.clientY - rect.top);
+			//ctx.putImageData(layers[activelayer].getdata(), 0, 0);
+			flatten_image();
+			break;
+		case "brush":
+			layers[activelayer].clear_pen();
+			break;
+		case "fill":
+			var canvas = document.getElementById('cl');
+			var ctx = canvas.getContext('2d');
+			var rect = canvas.getBoundingClientRect();
+			layers[activelayer].fill(event.clientX - rect.left,event.clientY - rect.top);
+			//ctx.putImageData(layers[activelayer].getdata(), 0, 0);
+			flatten_image();
+			break;
+	}
+}
+
+function action_interrupted(){
+	action_ongoing = false;
+	switch (tool){
+		case "ruler":
+		case "brush":
+			layers[activelayer].clear_pen();
+			break;
+	}
+}
+
+function set_tool(tl){
+	tool = tl;
+}
+
+function set_point()
+{
+	if(k%2==1)
+		return;
+	var canvas = document.getElementById('cl');
+	var ctx = canvas.getContext('2d');
+	var rect = canvas.getBoundingClientRect();
+	if(k==4){
+		k = 0;
+		p = [];
+	}
+	var mousex = event.clientX - rect.left;
+	var mousey = event.clientY - rect.top;
+	p[k] = {x: mousex, y: mousey};
+	k++;
+	ctx.fillStyle = "rgb(0,0,0)";
+	ctx.fillRect(mousex - 8, mousey - 8, 16, 16);
+	ctx.fillStyle = "rgb(256,48,48)";
+	ctx.fillRect(mousex - 6, mousey - 6, 12, 12);
+}
+
+function set_pivot() {
+	if((k%2==0)||k>=4)
+		return;
+	var canvas = document.getElementById('cl');
+	var ctx = canvas.getContext('2d');
+	var rect = canvas.getBoundingClientRect();
+	var mousex = event.clientX - rect.left;
+	var mousey = event.clientY - rect.top;
+	p[k] = {x: mousex, y: mousey};
+	ctx.beginPath();    
+	ctx.moveTo(p[k-1].x, p[k-1].y);   
+	ctx.lineTo(mousex, mousey); 
+	ctx.stroke(); 
+	ctx.fillStyle = "rgb(0,0,0)";
+	ctx.fillRect(mousex - 8, mousey - 8, 16, 16);
+	ctx.fillStyle = "rgb(48,256,48)";
+	ctx.fillRect(mousex - 6, mousey - 6, 12, 12);
+	k++;
+	if(k==4){
+		draw_bezier();
+	}
+}
+
+function draw_bezier(){
+	var canvas = document.getElementById('cl');
+	var ctx = canvas.getContext('2d');
+	ctx.beginPath();    
+	ctx.moveTo(p[0].x, p[0].y);   
+	var r0 = p[0];
+	var r1;
+	ctx.fillStyle = "rgb(0,0,0)";
+	for(var i = 1; i<=number; i++){
+		var r1 = calc_for_point(i);
+		ctx.lineTo(r1.x, r1.y); 
+		ctx.fillRect(r1.x-2,r1.y-2,4,4);
+		r0 = r1;
+	}
+	ctx.stroke(); 
+}
+
+function update_properties(prop){
+	switch(prop){
+		case('thickness'):
+			thickness = document.getElementById('thickness').value;
+			break;
+	}
+}
+
+function calc_for_point(step, sp){
+	var t = step/number;
+	var c = {x: 3 * (p[1].x - p[0].x), y: 3 * (p[1].y - p[0].y)};
+	var b = {x: 3 * (p[3].x - p[1].x) - c.x, y: 3 * (p[3].y - p[1].y) - c.y};
+	var a = {x: p[2].x - p[0].x - c.x - b.x, y: p[2].y - p[0].y - c.y - b.y};
+  	var x = (a.x * Math.pow(t, 3)) + (b.x * Math.pow(t, 2)) + (c.x * t) + p[0].x;
+  	var y = (a.y * Math.pow(t, 3)) + (b.y * Math.pow(t, 2)) + (c.y * t) + p[0].y;
+	return {x: x, y: y};
+}
+
+</script>
+<body>
+<h2>DrawChill</h2>
+<div style="display: flex; text-align:center;">
+	<div style="margin-left: auto; margin-right: auto; display: flex;">
+		<div>
+			<div class="tool_button" onclick="set_tool('brush')">
+				<img src="icons/paint-brush.png">
+			</div>
+			<br>
+			<div class="tool_button" onclick="set_tool('fill')">
+				<img src="icons/color-fill-tool.png">
+			</div>
+			<br>
+			<div class="tool_button" onclick="set_tool('ruler')">
+				<img src="icons/ruler-measurement.png">
+			</div>
+		</div>
+		<canvas id="cl" class="ccl" width=960px height=720px onmousedown="action_start()" onmouseup="action_end()" onmouseleave="action_interrupted()" onmousemove="action_process()" style="border-style: solid;" ></canvas>
+		<div style="width: 212px; background-color: #72adf6;">
+			<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:right;">
+				Primary color: <input type="color" id="col1" value="#000000" onchange="update_color()">
+				<br><br>
+				Secondary color: <input type="color" id="col2" value="#FFFFFF" onchange="update_color()">
+			</div>
+			<br>
+			<clear>
+			<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:left;">
+				Thickness:
+				<br>
+				<input type="range" id="thickness" min="1" max="64" step="1" value="1" style="width: 172px; margin:0px" onclick="update_properties('thickness')">
+			</div>
+			<div>
+				<div class="layers_button" onclick="new_layer()">
+					<img src="icons/plus-square-line.png">
+				</div>
+			</div>
+			<div id="layerslist">
+				<div class="layer_plate" onclick="switch_to_layer(0)">
+					Background
+					<input type="checkbox" id="visibility0" checked="true" onclick="layers[0].setvisible()">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
+

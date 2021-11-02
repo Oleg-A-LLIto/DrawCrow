@@ -22,18 +22,29 @@ class Layer {
 		this.h = height;
 		this.prevpoint = {x: -1, y: -1};
 		this.canvas = new OffscreenCanvas(this.w, this.h);
+		this.backup = new OffscreenCanvas(this.w, this.h);
 		this.visible = true;
 	}
 
+	save(){
+		var ctx = this.backup.getContext('2d');
+		ctx.clearRect(0, 0, width, height);
+		ctx.drawImage(this.canvas, 0, 0);
+	}	
+
+	load(){
+		var ctx = this.canvas.getContext('2d');
+		ctx.clearRect(0, 0, width, height);
+		ctx.drawImage(this.backup, 0, 0);
+	}
+
 	setvisible(){
-		this.visible = document.getElementById('visibility'+this.id).checked;
+		this.visible = document.getElementById('visibility_'+this.id).checked;
 		flatten_image();
 	}
 
 	draw_pen(x,y){
-		var ctx = this.canvas.getContext('2d');
-		ctx.fillStyle = curcol;
-		ctx.strokeStyle = curcol;
+		const ctx = this.canvas.getContext('2d');
 		ctx.lineWidth = 1;
 		if(thickness>1){
 			ctx.beginPath();
@@ -51,6 +62,11 @@ class Layer {
 		this.prevpoint.y = y;
 	}
 
+	erase(x,y){
+		const ctx = this.canvas.getContext('2d');
+		ctx.clearRect(x-(thickness/4),y-(thickness/2),thickness/2,thickness)
+	}
+
 	clear_pen(){
 		this.prevpoint.x = -1;
 	}
@@ -64,7 +80,6 @@ class Layer {
 		flatten_image();
 		var canvas = document.getElementById('cl');
 		var ctx = canvas.getContext('2d');
-		ctx.strokeStyle = curcol;
 		ctx.lineWidth = thickness;
 		ctx.beginPath();
 		ctx.moveTo(this.prevpoint.x, this.prevpoint.y); 
@@ -75,7 +90,6 @@ class Layer {
 	ruler_end(x,y){
 		flatten_image();
 		var ctx = this.canvas.getContext('2d');
-		ctx.strokeStyle = curcol;
 		ctx.lineWidth = thickness;
 		ctx.beginPath();
 		ctx.moveTo(this.prevpoint.x, this.prevpoint.y); 
@@ -87,15 +101,15 @@ class Layer {
 	fill(x,y){
 		x = Math.round(x);
 		y = Math.round(y);
-		var ctx = this.canvas.getContext('2d');
+		const ctx = this.canvas.getContext('2d');
 		ctx.fillStyle = curcol;
-		var oldcolor = this.getpixel(ctx,x,y);
-		var stk = [];
-		var lim = 9999999999;
+		const oldcolor = this.getpixel(ctx,x,y);
+		let stk = [];
+		let lim = 9999999999;
 		stk.push({x: x,y: y, dir: -1});
 		while ((stk.length > 0) && (lim >=0)){
 			lim--;
-			var curpix = stk.pop();
+			const curpix = stk.pop();
 			ctx.fillRect(curpix.x,curpix.y,1,1);
 			if((x>0) && (x<this.w) && (y>0) && (y<this.h)){
 				switch(curpix.dir){
@@ -182,6 +196,11 @@ class Layer {
   	}
   }
  */
+	update_color(){
+		const ctx = this.canvas.getContext('2d');
+		ctx.fillStyle = curcol;
+		ctx.strokeStyle = curcol;
+	}
 
 	getdata() {
 		return this.canvas.getContext('2d').getImageData(0, 0, this.w, this.h);
@@ -203,6 +222,16 @@ function get_picture(){
 
 function switch_to_layer(laynum){
 	activelayer = laynum;
+	plates = document.getElementsByClassName("layer_plate");
+	for(let i = 0; i<plates.length; i++){
+		if(plates[i].id == ("plate_"+layers[activelayer].id)){
+			plates[i].classList.add("selected");
+		}
+		else{
+			plates[i].classList.remove("selected");
+		}
+	}
+	layers[activelayer].update_color();
 }
 
 function new_layer(){
@@ -212,9 +241,10 @@ function new_layer(){
 	let newplate = document.createElement("div");
 	newplate.setAttribute("onclick","switch_to_layer("+(layers.length-1)+");");
 	newplate.classList.add("layer_plate");
+	newplate.setAttribute("id","plate_"+laynum);
   newplate.appendChild(document.createTextNode("Layer"+laynum));
   let vischeck = document.createElement("input"); 
-  vischeck.setAttribute("id","visibility"+laynum);
+  vischeck.setAttribute("id","visibility_"+laynum);
   vischeck.setAttribute("type","checkbox");
   vischeck.setAttribute("checked","true");
   vischeck.setAttribute("onclick","layers["+(layers.length-1)+"].setvisible()");
@@ -228,8 +258,7 @@ function new_layer(){
 function flatten_image(){
 	var canvas = document.getElementById('cl');
 	var ctx = canvas.getContext('2d');
-	ctx.fillStyle = "white";
-	ctx.fillRect(0, 0, width, height);
+	ctx.clearRect(0, 0, width, height);
 	var imgData = ctx.getImageData(0, 0, width, height);
 	var data = imgData.data;
 	for(i = 0; i < layers.length; i++){
@@ -250,24 +279,15 @@ function flatten_image(){
 	}
 }
 
-function addElement () {
-  // create a new div element
-  const newDiv = document.createElement("div");
-
-
-}
-
 function update_color(){
 	curcol = document.getElementById('col1').value;
 	seccol = document.getElementById('col2').value;
-}
-
-function current_color() {
-	return curcol;
+	layers[activelayer].update_color();
 }
 
 function action_start(){
 	action_ongoing = true;
+	layers[activelayer].save();
 	switch (tool){
 		case "ruler":
 			var canvas = document.getElementById('cl');
@@ -275,15 +295,26 @@ function action_start(){
 			var rect = canvas.getBoundingClientRect();
 			layers[activelayer].ruler_start(event.clientX - rect.left,event.clientY - rect.top);
 			break;
+		case "eraser":
+			var canvas = document.getElementById('cl');
+			var ctx = canvas.getContext('2d');
+			var rect = canvas.getBoundingClientRect();
+			layers[activelayer].erase(event.clientX - rect.left,event.clientY - rect.top);
+			flatten_image();
+			break;
 		case "brush":
 			var canvas = document.getElementById('cl');
 			var ctx = canvas.getContext('2d');
 			var rect = canvas.getBoundingClientRect();
 			layers[activelayer].draw_pen(event.clientX - rect.left,event.clientY - rect.top);
 			flatten_image();
-			//ctx.putImageData(layers[activelayer].getdata(), 0, 0);
 			break;
 	}
+}
+
+function cancel(){
+	layers[activelayer].load();
+	flatten_image();
 }
 
 function action_process(){
@@ -302,6 +333,13 @@ function action_process(){
 				var ctx = canvas.getContext('2d');
 				var rect = canvas.getBoundingClientRect();
 				layers[activelayer].ruler_render(event.clientX - rect.left,event.clientY - rect.top);
+				break;
+			case "eraser":
+				var canvas = document.getElementById('cl');
+				var ctx = canvas.getContext('2d');
+				var rect = canvas.getBoundingClientRect();
+				layers[activelayer].erase(event.clientX - rect.left,event.clientY - rect.top);
+				flatten_image();
 				break;
 		}
 	}
@@ -341,6 +379,7 @@ function action_interrupted(){
 			layers[activelayer].clear_pen();
 			break;
 	}
+	flatten_image();
 }
 
 function set_tool(tl){
@@ -431,17 +470,21 @@ function calc_for_point(step, sp){
 <h2>DrawChill</h2>
 <div style="display: flex; text-align:center;">
 	<div style="margin-left: auto; margin-right: auto; display: flex;">
-		<div>
+		<div style="display: flex; flex-direction: column;">
 			<div class="tool_button" onclick="set_tool('brush')">
-				<img src="icons/paint-brush.png">
+				<img style="align-self: center;" src="icons/paint-brush.png">
 			</div>
-			<br>
 			<div class="tool_button" onclick="set_tool('fill')">
-				<img src="icons/color-fill-tool.png">
+				<img style="align-self: center;" src="icons/color-fill-tool.png">
 			</div>
-			<br>
 			<div class="tool_button" onclick="set_tool('ruler')">
-				<img src="icons/ruler-measurement.png">
+				<img style="align-self: center;" src="icons/ruler-measurement.png">
+			</div>
+			<div class="tool_button" onclick="set_tool('eraser')">
+				<img style="align-self: center;" src="icons/eraser.png">
+			</div>
+			<div class="tool_button" onclick="cancel()">
+				<img style="align-self: center;" src="icons/reply-arrow.png">
 			</div>
 		</div>
 		<canvas id="cl" class="ccl" width=960px height=720px onmousedown="action_start()" onmouseup="action_end()" onmouseleave="action_interrupted()" onmousemove="action_process()" style="border-style: solid;" ></canvas>
@@ -453,6 +496,7 @@ function calc_for_point(step, sp){
 			</div>
 			<br>
 			<clear>
+			</clear>
 			<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:left;">
 				Thickness:
 				<br>
@@ -480,10 +524,10 @@ function calc_for_point(step, sp){
 					</div>
 				</div>
 			</div>
-			<div id="layerslist" style="display: contents;">
-				<div class="layer_plate" onclick="switch_to_layer(0)">
+			<div id="layerslist" style="display: flex; flex-direction: column;">
+				<div class="layer_plate selected" id="plate_0" onclick="switch_to_layer(0)">
 					Background
-					<input type="checkbox" id="visibility0" checked="true" onclick="layers[0].setvisible()">
+					<input type="checkbox" id="visibility_0" checked="true" onclick="layers[0].setvisible()">
 				</div>
 			</div>
 		</div>

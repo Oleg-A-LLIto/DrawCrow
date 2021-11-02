@@ -2,11 +2,14 @@
 	width: 72px;
 	height: 72px;
 	background-color: #5099f4;
-	display: table-cell;
+	display: flex;
+	justify-content: center;
 	vertical-align: middle;
+	margin-bottom: 2px;
 }
 
 .layers_button{
+	box-sizing: border-box;
 	width: 52px;
 	height: 42px;
 	background-color: #5099f4;
@@ -15,14 +18,23 @@
 }
 
 .layer_plate{
+	box-sizing: border-box;
 	width: 212px;
 	height: 56px;
 	display: block;
 	background-color: #5099f4;
 	display: table-cell;
 	vertical-align: middle;
-	border-bottom: 40px;
-	text-align: middle;
+	margin-bottom: 2px;
+	text-align: center;
+}
+
+.selected{
+	border: 2px solid #FFFFFF;
+}
+
+body{
+	background-color: #E1F1FF;
 }
 
 input[type=range] {

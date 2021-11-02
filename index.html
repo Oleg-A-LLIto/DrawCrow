@@ -263,6 +263,14 @@ function action_start(){
 			var rect = canvas.getBoundingClientRect();
 			layers[activelayer].ruler_start(event.clientX - rect.left,event.clientY - rect.top);
 			break;
+		case "brush":
+			var canvas = document.getElementById('cl');
+			var ctx = canvas.getContext('2d');
+			var rect = canvas.getBoundingClientRect();
+			layers[activelayer].draw_pen(event.clientX - rect.left,event.clientY - rect.top);
+			flatten_image();
+			//ctx.putImageData(layers[activelayer].getdata(), 0, 0);
+			break;
 	}
 }
 

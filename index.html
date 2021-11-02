@@ -496,7 +496,13 @@ function calc_for_point(step, sp){
 				<img style="align-self: center;" src="icons/reply-arrow.png">
 			</div>
 		</div>
-		<canvas id="cl" class="ccl" width=960px height=720px onmousedown="action_start()" onmouseup="action_end()" onmouseleave="action_interrupted()" onmousemove="action_process()" style="border-style: solid;" ></canvas>
+		<div style="display: flex; width: 966px;">
+			<canvas id="cl" class="ccl" width=960px height=720px onmousedown="action_start()" onmouseup="action_end()" onmouseleave="action_interrupted()" onmousemove="action_process()" style="border-style: solid;" ></canvas>
+			<img src="checkers.png" style="position:  relative; left: -963px; z-index:-1;">
+			<clear>
+			</clear>
+		</div>
+		
 		<div style="width: 212px; background-color: #72adf6;">
 			<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:right;">
 				Primary color: <input type="color" id="col1" value="#000000" onchange="update_color()">

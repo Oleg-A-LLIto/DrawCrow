@@ -1,20 +1,135 @@
 <html>
 <link rel="stylesheet" type="text/css" href="styles.css">
-<script>
+<link rel="icon" href="favicon.ico">
+<body>
+<div class="logo"><img src="logo.png" style="margin-top: -4px; padding-right: 10px;">DrawChill</div>
+<div style="display: flex; text-align:center;">
+	<div style="margin-left: auto; margin-right: auto; display: flex;">
+		<div style="display: flex; flex-direction: column;">
+			<div class="tool_button left_sidebar_button selected button" id="button_brush" onclick="set_tool('brush')">
+				<img style="align-self: center;" src="icons/paint-brush.png">
+			</div>
+			<div class="tool_button left_sidebar_button button" id="button_fill" onclick="set_tool('fill')">
+				<img style="align-self: center;" src="icons/color-fill-tool.png">
+			</div>
+			<div class="tool_button left_sidebar_button button" id="button_ruler" onclick="set_tool('ruler')">
+				<img style="align-self: center;" src="icons/ruler-measurement.png">
+			</div>
+			<div class="tool_button left_sidebar_button button" id="button_eraser" onclick="set_tool('eraser')">
+				<img style="align-self: center;" src="icons/eraser.png">
+			</div>
+			<div class="left_sidebar_button button" onclick="cancel()">
+				<img style="align-self: center;" src="icons/reply-arrow.png">
+			</div>
+		</div>
+		<div style="display: flex; width: 966px;">
+			<canvas id="cl" class="ccl" width=960px height=720px onmousedown="action_start()" onmouseup="action_end()" onmouseleave="action_interrupted()" onmousemove="action_process()" style="border-style: solid;" ></canvas>
+			<img src="checkers.png" style="position:  relative; left: -963px; z-index:-1;">
+			<clear>
+			</clear>
+		</div>
+		<div style="display: flex; flex-direction: column;">
+			<div class="right_sidebar sidebar_header">
+				Ты що ебанутый
+			</div>
+			<div class="right_sidebar">
+				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:right; display: flex; justify-content: space-around;">
+					<div style="display: block; height: 128px;">
+						<div style="width: 128px; height: 128px;">
+							<div id="color_sample" style="width: 128px; height: 128px; background-color: #000000; position:  relative; z-index:3;">
+							</div>	
+							<div src="checkers.png" style="width:  128px; height: 128px; position:  relative; top: -128px; z-index:2; background-image: url('checkers.png'); background-repeat: no-repeat;">
+							</div>
+						</div>
+						
+						<clear>
+						</clear>
+					</div>
+					<div style="display: flex; flex-direction: column;">
+						<input type="range" id="red" style="width:128px;" min="0" max="255" value="0" onchange="update_color()">
+						<input type="range" id="green" style="width:128px;" min="0" max="255" value="0" onchange="update_color()">
+						<input type="range" id="blue" style="width:128px;" min="0" max="255" value="0" onchange="update_color()">
+						<input type="range" id="alpha" style="width:128px;" min="0" max="1" value="1" step="0.01" onchange="update_color()">
+					</div>
+				</div>
+				<br>
+				<clear>
+				</clear>
+			</div>
+			<div class="right_sidebar">
+				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:left;">
+					Thickness:
+					<br>
+					<input type="range" id="thickness" min="1" max="64" step="1" value="1" style="width: 172px; margin:0px" onclick="update_properties('thickness')">
+					<br>
+					<br>
+					<label class="check_container">
+						Пошел нахуй долбоеб
+						<input type="checkbox" id="asf" checked="true" onclick="">
+						<span class="checkmark"></span>
+					</label>
+				</div>
+			</div>
+			<div class="right_sidebar">
+				<div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+					<div>
+						<div class="layers_button button" onclick="new_layer()">
+							<img src="icons/plus-square-line.png">
+						</div>
+					</div>
+					<div>
+						<div class="layers_button button" onclick="new_layer()">
+							<img src="icons/plus-square-line.png">
+						</div>
+					</div>
+					<div>
+						<div class="layers_button button" onclick="new_layer()">
+							<img src="icons/plus-square-line.png">
+						</div>
+					</div>
+					<div>
+						<div class="layers_button button" onclick="new_layer()">
+							<img src="icons/plus-square-line.png">
+						</div>
+					</div>
+				</div>
+				<div id="layerslist" class="layers_scroll" style="display: flex; flex-direction: column;">
+					<div class="layer_plate selected" id="plate_0" onclick="switch_to_layer(0)">
+						<canvas class="thumbnail" id="thumb_0"></canvas>
+						<div style="width:130px;">
+							Background
+							<input type="range" id="opacity_0" style="width:128px;" min="0" max="100" value="100" checked="true" onchange="layers[0].setopacity()">
+						</div>
+						<div style="width:72px;">
+							<input type="checkbox" id="visibility_0" checked="true" onclick="layers[0].setvisible()">
+							<img src="icons/view.png">
+							<select id="mode_0">
+							  <option value="Normal" selected>Normal</option>
+							  <option value="Add">Add</option>
+							  <option value="Multiply">Multiply</option>
+							  <option value="Negate">Negate</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
 
+<script>
 const width = 960;
 const height = 720;
-var tool = "brush";
-var red = 0;
-var green = 0;
-var blue = 0;
-var alpha = 255;
-var curcol = "#000000";
-var seccol = "#FFFFFF"
-var layers = [];
+const twidth = 48;
+const theight = 36;
+let tool = "brush";
+let curcol = "rgba(0,0,0,255)";
+let seccol = "rgba(255,255,255,255)"
+let layers = [];
 
 class Layer {
-
 	constructor(id) {
 		this.name = "Layer"+id;
 		this.id = id;
@@ -28,18 +143,21 @@ class Layer {
 		this.backup = document.createElement('canvas');
 		this.backup.width = this.w;
 		this.backup.height = this.h;
+		this.thumbnail = document.getElementById('thumb_'+this.id);
+		this.thumbnail.width = twidth;
+		this.thumbnail.height = theight;
 		this.visible = true;
 		this.opacity = 100;
 	}
 
 	save(){
-		var ctx = this.backup.getContext('2d');
+		const ctx = this.backup.getContext('2d');
 		ctx.clearRect(0, 0, width, height);
 		ctx.drawImage(this.canvas, 0, 0);
 	}	
 
 	load(){
-		var ctx = this.canvas.getContext('2d');
+		const ctx = this.canvas.getContext('2d');
 		ctx.clearRect(0, 0, width, height);
 		ctx.drawImage(this.backup, 0, 0);
 	}
@@ -125,98 +243,55 @@ class Layer {
 		const ctx = this.canvas.getContext('2d');
 		ctx.fillStyle = curcol;
 		const oldcolor = this.getpixel(ctx,x,y);
+		if(oldcolor == curcol){
+			return;
+		}
 		let stk = [];
-		let lim = 9999999999;
+		let lim = 2000000;
 		stk.push({x: x,y: y, dir: -1});
 		while ((stk.length > 0) && (lim >=0)){
 			lim--;
 			const curpix = stk.pop();
+			if(!((curpix.x>=0) && (curpix.x<this.w) && (curpix.y>=0) && (curpix.y<this.h))){
+				continue;
+			}
 			ctx.fillRect(curpix.x,curpix.y,1,1);
-			if((x>0) && (x<this.w) && (y>0) && (y<this.h)){
-				switch(curpix.dir){
-		  		case(1):
-		  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
-		  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
-						if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
-		  			break;
-		  		case(2):
-		  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
-		  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
-		  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
-		  			break;
-		  		case(3):
-		  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
-		  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
-						if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
-		  			break;
-		  		case(4):
-		  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
-		  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
-						if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
-		  			break;
-		  		case(-1):
-		  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
-		  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
-		  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
-						if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
-						break;
-				}
+			switch(curpix.dir){
+	  		case(1):
+	  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
+	  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
+					if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
+	  			break;
+	  		case(2):
+	  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
+	  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
+	  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
+	  			break;
+	  		case(3):
+	  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
+	  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
+					if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
+	  			break;
+	  		case(4):
+	  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
+	  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
+					if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
+	  			break;
+	  		case(-1):
+	  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
+	  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
+	  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
+					if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
+					break;
 			}
 		}
 	}
 
 	getpixel(ctx,x,y){
 		var pix = ctx.getImageData(x,y,1,1).data;
-		return "rgba("+pix[0]+","+pix[1]+","+pix[2]+","+pix[3]+");";
+		return "rgba("+pix[0]+","+pix[1]+","+pix[2]+","+pix[3]+")";
 	}
 
-/*
-  fill(x,y){
-  	alert('lol');
-  	var ctx = this.canvas.getContext('2d');
-  	var oldpixel = ctx.getImageData(x,y,1,1).data;
-  	var oldcolor = "rgba("+oldpixel[0]+","+oldpixel[1]+","+oldpixel[2]+","+oldpixel[3]+");"
-  	alert(oldcolor);
-  	this.recursive_fill(x+1,y,oldcolor,1);
-  	this.recursive_fill(x,y+1,oldcolor,2);
-  	this.recursive_fill(x-1,y,oldcolor,3);
-  	this.recursive_fill(x,y-1,oldcolor,4);
-  }
-
-  recursive_fill(x,y,oldcolor,dir){
-  	if((x>0) && (x<this.w) && (y>0) && (y<this.h)){
-  		var ctx = this.canvas.getContext('2d');
-	  	var localpixel = ctx.getImageData(x,y,1,1).data;
-	  	var localcolor = "rgba("+localpixel[0]+","+localpixel[1]+","+localpixel[2]+","+localpixel[3]+");"
-	  	if (localcolor == oldcolor){
-	  		ctx.fillStyle = curcol;
-			ctx.fillRect( x, y, 1, 1 );
-		  	switch(dir){
-		  		case(1):
-		  			this.recursive_fill(x+1,y,oldcolor,1);
-				  	this.recursive_fill(x,y+1,oldcolor,2);
-				  	this.recursive_fill(x,y-1,oldcolor,4);
-		  			break;
-		  		case(2):
-		  			this.recursive_fill(x+1,y,oldcolor,1);
-				  	this.recursive_fill(x,y+1,oldcolor,2);
-				  	this.recursive_fill(x-1,y,oldcolor,3);
-		  			break;
-		  		case(3):
-				  	this.recursive_fill(x,y+1,oldcolor,2);
-				  	this.recursive_fill(x-1,y,oldcolor,3);
-				  	this.recursive_fill(x,y-1,oldcolor,4);
-		  			break;
-		  		case(4):
-		  			this.recursive_fill(x+1,y,oldcolor,1);
-				  	this.recursive_fill(x-1,y,oldcolor,3);
-				  	this.recursive_fill(x,y-1,oldcolor,4);
-		  			break;
-		  	}
-	  	}
-  	}
-  }
- */
 	update_color(){
 		const ctx = this.canvas.getContext('2d');
 		ctx.fillStyle = curcol;
@@ -225,6 +300,23 @@ class Layer {
 
 	getdata() {
 		return this.canvas.getContext('2d').getImageData(0, 0, this.w, this.h);
+	}
+
+	update_thumbnail() {
+		let ctx = this.thumbnail.getContext('2d');
+		ctx.clearRect(0,0,twidth,theight);
+		let imgData = ctx.getImageData(0, 0, twidth, theight);
+		let data = imgData.data;
+		const data2 = this.getdata().data;
+		for (var i = 0; i < theight; i += 1) {
+			for (var j = 0; j < twidth*4; j += 4) {
+				data[i*twidth*4+j] = data2[i*twidth*1600+j*20];
+				data[i*twidth*4+j+1] = data2[i*twidth*1600+j*20+1];
+				data[i*twidth*4+j+2] = data2[i*twidth*1600+j*20+2];
+				data[i*twidth*4+j+3] = data2[i*twidth*1600+j*20+3];
+			}
+		}
+		ctx.putImageData(imgData, 0, 0);
 	}
 }
 
@@ -240,6 +332,8 @@ var action_ongoing = false;
 function get_picture(){
 	
 }
+
+
 
 function switch_to_layer(laynum){
 	activelayer = laynum;
@@ -257,32 +351,33 @@ function switch_to_layer(laynum){
 
 function new_layer(){
 	var laynum = layer_increment++;
-	var newl = new Layer(laynum);
-	layers.push(newl);
 	let newplate = document.createElement("div");
 	newplate.setAttribute("onclick","switch_to_layer("+laynum+");");
 	newplate.classList.add("layer_plate");
 	newplate.setAttribute("id","plate_"+laynum);
+	newplate.innerHTML += '<canvas class="thumbnail" id="thumb_'+laynum+'"></canvas>';
   newplate.appendChild(document.createTextNode("Layer"+laynum));
   let vischeck = document.createElement("input"); 
   vischeck.setAttribute("id","visibility_"+laynum);
   vischeck.setAttribute("type","checkbox");
   vischeck.setAttribute("checked","true");
-  vischeck.setAttribute("onclick","layers["+(layers.length-1)+"].setvisible()");
+  vischeck.setAttribute("onclick","layers["+laynum+"].setvisible()");
   newplate.appendChild(vischeck);
   newplate.innerHTML += '<input type="range" id="opacity_'+laynum+'" width="100px" min="0" max="100" value="100" checked="true" onchange="layers['+laynum+'].setopacity()">';
   var ll = document.getElementById("layerslist");
   //ll.insertBefore(document.createElement("br"), ll.firstChild);
   ll.insertBefore(newplate, ll.firstChild);
+  var newl = new Layer(laynum);
+	layers.push(newl);
   switch_to_layer(laynum);
 }
 
 function flatten_image(){
-	var canvas = document.getElementById('cl');
-	var ctx = canvas.getContext('2d');
+	const canvas = document.getElementById('cl');
+	const ctx = canvas.getContext('2d');
 	ctx.clearRect(0, 0, width, height);
-	var imgData = ctx.getImageData(0, 0, width, height);
-	var data = imgData.data;
+	let imgData = ctx.getImageData(0, 0, width, height);
+	let data = imgData.data;
 	for(i = 0; i < layers.length; i++){
 		if(layers[i].visible==false)
 			continue;
@@ -297,16 +392,31 @@ function flatten_image(){
 			data[j+2] = data2[j+2]*ratio + data[j+2]*(1-ratio); //blue
 			data[j+3] = Math.min(data2op + data[j+3], 255);
 		}
-		imgData.data = data;
+		//imgData.data = data;
 		ctx.putImageData(imgData, 0, 0);
 	}
 }
 
+
+
 function update_color(){
-	curcol = document.getElementById('col1').value;
+	const red = document.getElementById('red').value;
+	const green = document.getElementById('green').value;
+	const blue = document.getElementById('blue').value;
+	const alpha = document.getElementById('alpha').value;
+	curcol = "rgba("+red+","+green+","+blue+","+alpha+")";
+	document.getElementById('color_sample').style.background = curcol; 
+}
+
+/*
+function update_color(){
+	alert(curcol);
+	curcol = document.getElementById('col1').value + "FF";
+	alert(curcol);
 	seccol = document.getElementById('col2').value;
 	layers[activelayer].update_color();
 }
+*/
 
 function action_start(){
 	action_ongoing = true;
@@ -394,6 +504,7 @@ function action_end(){
 			flatten_image();
 			break;
 	}
+	layers[activelayer].update_thumbnail()
 }
 
 function action_interrupted(){
@@ -500,109 +611,3 @@ function calc_for_point(step, sp){
 }
 
 </script>
-<body>
-<div class="logo"><img src="logo.png" style="margin-top: -4px; padding-right: 10px;">DrawChill</div>
-<div style="display: flex; text-align:center;">
-	<div style="margin-left: auto; margin-right: auto; display: flex;">
-		<div style="display: flex; flex-direction: column;">
-			<div class="tool_button left_sidebar_button selected button" id="button_brush" onclick="set_tool('brush')">
-				<img style="align-self: center;" src="icons/paint-brush.png">
-			</div>
-			<div class="tool_button left_sidebar_button button" id="button_fill" onclick="set_tool('fill')">
-				<img style="align-self: center;" src="icons/color-fill-tool.png">
-			</div>
-			<div class="tool_button left_sidebar_button button" id="button_ruler" onclick="set_tool('ruler')">
-				<img style="align-self: center;" src="icons/ruler-measurement.png">
-			</div>
-			<div class="tool_button left_sidebar_button button" id="button_eraser" onclick="set_tool('eraser')">
-				<img style="align-self: center;" src="icons/eraser.png">
-			</div>
-			<div class="left_sidebar_button button" onclick="cancel()">
-				<img style="align-self: center;" src="icons/reply-arrow.png">
-			</div>
-		</div>
-		<div style="display: flex; width: 966px;">
-			<canvas id="cl" class="ccl" width=960px height=720px onmousedown="action_start()" onmouseup="action_end()" onmouseleave="action_interrupted()" onmousemove="action_process()" style="border-style: solid;" ></canvas>
-			<img src="checkers.png" style="position:  relative; left: -963px; z-index:-1;">
-			<clear>
-			</clear>
-		</div>
-		<div style="display: flex; flex-direction: column;">
-			<div class="right_sidebar sidebar_header">
-				Ты що ебанутый
-			</div>
-			<div class="right_sidebar">
-				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:right;">
-					Primary color: <input type="color" id="col1" value="#000000" onchange="update_color()">
-					<br><br>
-					Secondary color: <input type="color" id="col2" value="#FFFFFF" onchange="update_color()">
-				</div>
-				<br>
-				<clear>
-				</clear>
-			</div>
-			<div class="right_sidebar">
-				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:left;">
-					Thickness:
-					<br>
-					<input type="range" id="thickness" min="1" max="64" step="1" value="1" style="width: 172px; margin:0px" onclick="update_properties('thickness')">
-					<br>
-					<br>
-					<label class="check_container">
-						Пошел нахуй долбоеб
-						<input type="checkbox" id="asf" checked="true" onclick="">
-						<span class="checkmark"></span>
-					</label>
-				</div>
-			</div>
-			<div class="right_sidebar">
-				<div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
-					<div>
-						<div class="layers_button button" onclick="new_layer()">
-							<img src="icons/plus-square-line.png">
-						</div>
-					</div>
-					<div>
-						<div class="layers_button button" onclick="new_layer()">
-							<img src="icons/plus-square-line.png">
-						</div>
-					</div>
-					<div>
-						<div class="layers_button button" onclick="new_layer()">
-							<img src="icons/plus-square-line.png">
-						</div>
-					</div>
-					<div>
-						<div class="layers_button button" onclick="new_layer()">
-							<img src="icons/plus-square-line.png">
-						</div>
-					</div>
-				</div>
-				<div id="layerslist" style="display: flex; flex-direction: column;">
-					<div class="layer_plate selected" id="plate_0" onclick="switch_to_layer(0)">
-						<div class="thumbnail">
-							asf
-						</div>
-						<div style="width:130px;">
-							Background
-							<input type="range" id="opacity_0" style="width:128px;" min="0" max="100" value="100" checked="true" onchange="layers[0].setopacity()">
-						</div>
-						<div style="width:72px;">
-							<input type="checkbox" id="visibility_0" checked="true" onclick="layers[0].setvisible()">
-							<img src="icons/view.png">
-							<select id="mode_0">
-							  <option value="Normal" selected>Normal</option>
-							  <option value="Add">Add</option>
-							  <option value="Multiply">Multiply</option>
-							  <option value="Negate">Negate</option>
-							</select>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-</body>
-</html>
-

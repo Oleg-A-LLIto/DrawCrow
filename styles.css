@@ -6,6 +6,15 @@ body{
 	font-family: 'Gotham Pro', sans-serif;
 }
 
+.logo{
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	vertical-align: middle;
+	font-size: 36;
+	margin: 16px;
+}
+
 .right_sidebar{
 	width: 320px; 
 	background-color: #2C323B;

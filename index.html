@@ -21,9 +21,15 @@ class Layer {
 		this.w = width;
 		this.h = height;
 		this.prevpoint = {x: -1, y: -1};
-		this.canvas = new OffscreenCanvas(this.w, this.h);
-		this.backup = new OffscreenCanvas(this.w, this.h);
+		this.simplified_preview = true;
+		this.canvas = document.createElement('canvas');
+		this.canvas.width = this.w;
+		this.canvas.height = this.h;
+		this.backup = document.createElement('canvas');
+		this.backup.width = this.w;
+		this.backup.height = this.h;
 		this.visible = true;
+		this.opacity = 100;
 	}
 
 	save(){
@@ -43,9 +49,26 @@ class Layer {
 		flatten_image();
 	}
 
+	setopacity(){
+		this.opacity = document.getElementById('opacity_'+this.id).value;
+		flatten_image();
+	}
+
 	draw_pen(x,y){
-		const ctx = this.canvas.getContext('2d');
+		let ctx = this.canvas.getContext('2d');
+		this.draw_pen_on_context(ctx,x,y);
+		if(this.simplified_preview){
+			ctx = document.getElementById('cl').getContext('2d');
+			this.draw_pen_on_context(ctx,x,y);
+		}
+		this.prevpoint.x = x;
+		this.prevpoint.y = y;
+	}
+
+	draw_pen_on_context(ctx, x, y){
 		ctx.lineWidth = 1;
+		ctx.strokeStyle = curcol;
+		ctx.fillStyle = curcol;
 		if(thickness>1){
 			ctx.beginPath();
 			ctx.arc(x, y, (thickness-1)/2,  0, 360);
@@ -55,11 +78,9 @@ class Layer {
 			ctx.lineWidth = thickness;
 			ctx.beginPath();
 			ctx.moveTo(this.prevpoint.x, this.prevpoint.y); 
-		    ctx.lineTo(x, y);
-		    ctx.stroke();
+		  ctx.lineTo(x, y);
+		  ctx.stroke();
 		}
-		this.prevpoint.x = x;
-		this.prevpoint.y = y;
 	}
 
 	erase(x,y){
@@ -77,9 +98,9 @@ class Layer {
 	}
 
 	ruler_render(x,y){
-		flatten_image();
-		var canvas = document.getElementById('cl');
-		var ctx = canvas.getContext('2d');
+		this.load();
+		const canvas = document.getElementById('cl');
+		const ctx = canvas.getContext('2d');
 		ctx.lineWidth = thickness;
 		ctx.beginPath();
 		ctx.moveTo(this.prevpoint.x, this.prevpoint.y); 
@@ -89,7 +110,7 @@ class Layer {
 
 	ruler_end(x,y){
 		flatten_image();
-		var ctx = this.canvas.getContext('2d');
+		const ctx = this.canvas.getContext('2d');
 		ctx.lineWidth = thickness;
 		ctx.beginPath();
 		ctx.moveTo(this.prevpoint.x, this.prevpoint.y); 
@@ -239,7 +260,7 @@ function new_layer(){
 	var newl = new Layer(laynum);
 	layers.push(newl);
 	let newplate = document.createElement("div");
-	newplate.setAttribute("onclick","switch_to_layer("+(layers.length-1)+");");
+	newplate.setAttribute("onclick","switch_to_layer("+laynum+");");
 	newplate.classList.add("layer_plate");
 	newplate.setAttribute("id","plate_"+laynum);
   newplate.appendChild(document.createTextNode("Layer"+laynum));
@@ -249,10 +270,11 @@ function new_layer(){
   vischeck.setAttribute("checked","true");
   vischeck.setAttribute("onclick","layers["+(layers.length-1)+"].setvisible()");
   newplate.appendChild(vischeck);
+  newplate.innerHTML += '<input type="range" id="opacity_'+laynum+'" width="100px" min="0" max="100" value="100" checked="true" onchange="layers['+laynum+'].setopacity()">';
   var ll = document.getElementById("layerslist");
   //ll.insertBefore(document.createElement("br"), ll.firstChild);
   ll.insertBefore(newplate, ll.firstChild);
-  activelayer = layers.length-1;
+  switch_to_layer(laynum);
 }
 
 function flatten_image(){
@@ -265,14 +287,15 @@ function flatten_image(){
 		if(layers[i].visible==false)
 			continue;
 		data2 = layers[i].getdata().data;
-		for (var j = 0; j < data.length; j += 4) { 
-			var culling = 255 - (data2[j+3] + data[j+3]);
+		for (var j = 0; j < data.length; j += 4) {
+			data2op = data2[j+3] * (layers[i].opacity/100);
+			var culling = 255 - (data2op + data[j+3]);
 			if (culling > 0) culling = 0;
-			var ratio = data2[j+3]/(data2[j+3] + data[j+3] + culling);
+			var ratio = data2op/(data2op + data[j+3] + culling);
 			data[j] = data2[j]*ratio + data[j]*(1-ratio); // red
 			data[j+1] = data2[j+1]*ratio + data[j+1]*(1-ratio);//green
 			data[j+2] = data2[j+2]*ratio + data[j+2]*(1-ratio); //blue
-			data[j+3] = Math.min(data2[j+3] + data[j+3], 255);
+			data[j+3] = Math.min(data2op + data[j+3], 255);
 		}
 		imgData.data = data;
 		ctx.putImageData(imgData, 0, 0);
@@ -307,7 +330,8 @@ function action_start(){
 			var ctx = canvas.getContext('2d');
 			var rect = canvas.getBoundingClientRect();
 			layers[activelayer].draw_pen(event.clientX - rect.left,event.clientY - rect.top);
-			flatten_image();
+			if(!layers[activelayer].simplified_preview)
+				flatten_image();
 			break;
 	}
 }
@@ -325,8 +349,8 @@ function action_process(){
 				var ctx = canvas.getContext('2d');
 				var rect = canvas.getBoundingClientRect();
 				layers[activelayer].draw_pen(event.clientX - rect.left,event.clientY - rect.top);
-				flatten_image();
-				//ctx.putImageData(layers[activelayer].getdata(), 0, 0);
+				if(!layers[activelayer].simplified_preview)
+					flatten_image();
 				break;
 			case "ruler":
 				var canvas = document.getElementById('cl');
@@ -359,6 +383,7 @@ function action_end(){
 			break;
 		case "brush":
 			layers[activelayer].clear_pen();
+			flatten_image();
 			break;
 		case "fill":
 			var canvas = document.getElementById('cl');
@@ -502,47 +527,77 @@ function calc_for_point(step, sp){
 			<clear>
 			</clear>
 		</div>
-		
-		<div style="width: 212px; background-color: #72adf6;">
-			<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:right;">
-				Primary color: <input type="color" id="col1" value="#000000" onchange="update_color()">
-				<br><br>
-				Secondary color: <input type="color" id="col2" value="#FFFFFF" onchange="update_color()">
+		<div style="display: flex; flex-direction: column;">
+			<div class="right_sidebar sidebar_header">
+				Ты що ебанутый
 			</div>
-			<br>
-			<clear>
-			</clear>
-			<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:left;">
-				Thickness:
+			<div class="right_sidebar">
+				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:right;">
+					Primary color: <input type="color" id="col1" value="#000000" onchange="update_color()">
+					<br><br>
+					Secondary color: <input type="color" id="col2" value="#FFFFFF" onchange="update_color()">
+				</div>
 				<br>
-				<input type="range" id="thickness" min="1" max="64" step="1" value="1" style="width: 172px; margin:0px" onclick="update_properties('thickness')">
+				<clear>
+				</clear>
 			</div>
-			<div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
-				<div>
-					<div class="layers_button button" onclick="new_layer()">
-						<img src="icons/plus-square-line.png">
-					</div>
-				</div>
-				<div>
-					<div class="layers_button button" onclick="new_layer()">
-						<img src="icons/plus-square-line.png">
-					</div>
-				</div>
-				<div>
-					<div class="layers_button button" onclick="new_layer()">
-						<img src="icons/plus-square-line.png">
-					</div>
-				</div>
-				<div>
-					<div class="layers_button button" onclick="new_layer()">
-						<img src="icons/plus-square-line.png">
-					</div>
+			<div class="right_sidebar">
+				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:left;">
+					Thickness:
+					<br>
+					<input type="range" id="thickness" min="1" max="64" step="1" value="1" style="width: 172px; margin:0px" onclick="update_properties('thickness')">
+					<br>
+					<br>
+					<label class="check_container">
+						Пошел нахуй долбоеб
+						<input type="checkbox" id="asf" checked="true" onclick="">
+						<span class="checkmark"></span>
+					</label>
 				</div>
 			</div>
-			<div id="layerslist" style="display: flex; flex-direction: column;">
-				<div class="layer_plate selected" id="plate_0" onclick="switch_to_layer(0)">
-					Background
-					<input type="checkbox" id="visibility_0" checked="true" onclick="layers[0].setvisible()">
+			<div class="right_sidebar">
+				<div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+					<div>
+						<div class="layers_button button" onclick="new_layer()">
+							<img src="icons/plus-square-line.png">
+						</div>
+					</div>
+					<div>
+						<div class="layers_button button" onclick="new_layer()">
+							<img src="icons/plus-square-line.png">
+						</div>
+					</div>
+					<div>
+						<div class="layers_button button" onclick="new_layer()">
+							<img src="icons/plus-square-line.png">
+						</div>
+					</div>
+					<div>
+						<div class="layers_button button" onclick="new_layer()">
+							<img src="icons/plus-square-line.png">
+						</div>
+					</div>
+				</div>
+				<div id="layerslist" style="display: flex; flex-direction: column;">
+					<div class="layer_plate selected" id="plate_0" onclick="switch_to_layer(0)">
+						<div class="thumbnail">
+							asf
+						</div>
+						<div style="width:130px;">
+							Background
+							<input type="range" id="opacity_0" style="width:128px;" min="0" max="100" value="100" checked="true" onchange="layers[0].setopacity()">
+						</div>
+						<div style="width:72px;">
+							<input type="checkbox" id="visibility_0" checked="true" onclick="layers[0].setvisible()">
+							<img src="icons/view.png">
+							<select id="mode_0">
+							  <option value="Normal" selected>Normal</option>
+							  <option value="Add">Add</option>
+							  <option value="Multiply">Multiply</option>
+							  <option value="Negate">Negate</option>
+							</select>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

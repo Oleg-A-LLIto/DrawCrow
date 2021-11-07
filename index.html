@@ -1,6 +1,7 @@
 <html>
 <link rel="stylesheet" type="text/css" href="styles.css">
 <link rel="icon" href="favicon.ico">
+<title>DrawChill</title>
 <body>
 <div class="logo"><img src="logo.png" style="margin-top: -4px; padding-right: 10px;">DrawChill</div>
 <div style="display: flex; text-align:center;">
@@ -18,20 +19,20 @@
 			<div class="tool_button left_sidebar_button button" id="button_eraser" onclick="set_tool('eraser')">
 				<img style="align-self: center;" src="icons/eraser.png">
 			</div>
+			<div class="tool_button left_sidebar_button button" id="button_dropper" onclick="set_tool('dropper')">
+				<img style="align-self: center;" src="icons/dropper.png">
+			</div>
 			<div class="left_sidebar_button button" onclick="cancel()">
 				<img style="align-self: center;" src="icons/reply-arrow.png">
 			</div>
 		</div>
-		<div style="display: flex; width: 966px;">
-			<canvas id="cl" class="ccl" width=960px height=720px onmousedown="action_start()" onmouseup="action_end()" onmouseleave="action_interrupted()" onmousemove="action_process()" style="border-style: solid;" ></canvas>
-			<img src="checkers.png" style="position:  relative; left: -963px; z-index:-1;">
+		<div style="display: flex; width: 963px; height: 720px;">
+			<canvas id="cl" class="ccl" width=960px height=720px onmousedown="action_start()" onmouseup="action_end()" onmouseleave="action_interrupted()" onmousemove="action_process()" style="border-style: solid; border-width: 1px; cursor: crosshair; width: 960px; height: 720px;" ></canvas>
+			<img src="checkers.png" style="width: 960px; position:  relative; left: -961px; top: 1px; z-index:-1;">
 			<clear>
 			</clear>
 		</div>
 		<div style="display: flex; flex-direction: column;">
-			<div class="right_sidebar sidebar_header">
-				Ты що ебанутый
-			</div>
 			<div class="right_sidebar">
 				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:right; display: flex; justify-content: space-around;">
 					<div style="display: block; height: 128px;">
@@ -45,18 +46,28 @@
 						<clear>
 						</clear>
 					</div>
-					<div style="display: flex; flex-direction: column;">
-						<input type="range" id="red" style="width:128px;" min="0" max="255" value="0" onchange="update_color()">
-						<input type="range" id="green" style="width:128px;" min="0" max="255" value="0" onchange="update_color()">
-						<input type="range" id="blue" style="width:128px;" min="0" max="255" value="0" onchange="update_color()">
-						<input type="range" id="alpha" style="width:128px;" min="0" max="1" value="1" step="0.01" onchange="update_color()">
+					<div style="display: flex; flex-direction: column; text-align: left; justify-content: space-around;">
+						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
+							<input type="range" class="color_picker" id="red" style="width:128px; background: linear-gradient(to right, #000000, #FF0000);" min="0" max="255" value="0" onchange="update_color()">
+						</div>
+						<br>
+						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
+							<input type="range" class="color_picker" id="green" style="width:128px; background: linear-gradient(to right, #000000, #00FF00); min="0" max="255" value="0" onchange="update_color()">
+						</div>
+						<br>
+						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
+							<input type="range" class="color_picker" id="blue" style="width:128px; background: linear-gradient(to right, #000000, #0000FF); min="0" max="255" value="0" onchange="update_color()">
+						</div>
+						<br>
+						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
+							<input type="range" class="color_picker" id="alpha" style="width:128px; background: linear-gradient(to right, #00000000, #000000FF);" min="0" max="1" value="1" step="0.01" onchange="update_color()">
+						</div>
 					</div>
 				</div>
-				<br>
 				<clear>
 				</clear>
 			</div>
-			<div class="right_sidebar">
+			<div class="right_sidebar" style="height: 228px;">
 				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:left;">
 					Thickness:
 					<br>
@@ -289,8 +300,25 @@ class Layer {
 
 	getpixel(ctx,x,y){
 		var pix = ctx.getImageData(x,y,1,1).data;
-		return "rgba("+pix[0]+","+pix[1]+","+pix[2]+","+pix[3]+")";
+		return {r: pix[0], g: pix[1], b: pix[2], a: pix[3]};
 	}
+
+	sample(x,y){
+		const ctx = this.canvas.getContext('2d');
+		const col = this.getpixel(ctx,x,y);
+		col.a = col.a/255;
+		curcol = "rgba("+col.r+","+col.g+","+col.b+","+col.a+")";
+		document.getElementById('color_sample').style.background = curcol; 
+		document.getElementById('red').style.background = "linear-gradient(to right, rgba(0,"+col.g+","+col.b+","+col.a+"), rgba(255,"+col.g+","+col.b+","+col.a+"))";
+		document.getElementById('green').style.background = "linear-gradient(to right, rgba("+col.r+",0,"+col.b+","+col.a+"), rgba("+col.r+",255,"+col.b+","+col.a+"))";
+		document.getElementById('blue').style.background = "linear-gradient(to right, rgba("+col.r+","+col.g+",0,"+col.a+"), rgba("+col.r+","+col.g+",255,"+col.a+"))";
+		document.getElementById('alpha').style.background = "linear-gradient(to right, rgba("+col.r+","+col.g+","+col.b+",0), rgba("+col.r+","+col.g+","+col.b+",1))";
+		document.getElementById('red').value = col.r;
+		document.getElementById('green').value = col.g;
+		document.getElementById('blue').value = col.b;
+		document.getElementById('alpha').value = col.a;
+	}
+
 
 	update_color(){
 		const ctx = this.canvas.getContext('2d');
@@ -406,6 +434,10 @@ function update_color(){
 	const alpha = document.getElementById('alpha').value;
 	curcol = "rgba("+red+","+green+","+blue+","+alpha+")";
 	document.getElementById('color_sample').style.background = curcol; 
+	document.getElementById('red').style.background = "linear-gradient(to right, rgba(0,"+green+","+blue+","+alpha+"), rgba(255,"+green+","+blue+","+alpha+"))";
+	document.getElementById('green').style.background = "linear-gradient(to right, rgba("+red+",0,"+blue+","+alpha+"), rgba("+red+",255,"+blue+","+alpha+"))";
+	document.getElementById('blue').style.background = "linear-gradient(to right, rgba("+red+","+green+",0,"+alpha+"), rgba("+red+","+green+",255,"+alpha+"))";
+	document.getElementById('alpha').style.background = "linear-gradient(to right, rgba("+red+","+green+","+blue+",0), rgba("+red+","+green+","+blue+",1))";
 }
 
 /*
@@ -443,6 +475,12 @@ function action_start(){
 			if(!layers[activelayer].simplified_preview)
 				flatten_image();
 			break;
+		case "dropper":
+			var canvas = document.getElementById('cl');
+			var ctx = canvas.getContext('2d');
+			var rect = canvas.getBoundingClientRect();
+			layers[activelayer].sample(event.clientX - rect.left,event.clientY - rect.top);
+			break;
 	}
 }
 
@@ -475,6 +513,12 @@ function action_process(){
 				layers[activelayer].erase(event.clientX - rect.left,event.clientY - rect.top);
 				flatten_image();
 				break;
+			case "dropper":
+				var canvas = document.getElementById('cl');
+				var ctx = canvas.getContext('2d');
+				var rect = canvas.getBoundingClientRect();
+				layers[activelayer].sample(event.clientX - rect.left,event.clientY - rect.top);
+				break;
 		}
 	}
 }
@@ -502,6 +546,12 @@ function action_end(){
 			layers[activelayer].fill(event.clientX - rect.left,event.clientY - rect.top);
 			//ctx.putImageData(layers[activelayer].getdata(), 0, 0);
 			flatten_image();
+			break;
+		case "dropper":
+			var canvas = document.getElementById('cl');
+			var ctx = canvas.getContext('2d');
+			var rect = canvas.getBoundingClientRect();
+			layers[activelayer].sample(event.clientX - rect.left,event.clientY - rect.top);
 			break;
 	}
 	layers[activelayer].update_thumbnail()

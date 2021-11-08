@@ -52,15 +52,15 @@
 						</div>
 						<br>
 						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
-							<input type="range" class="color_picker" id="green" style="width:128px; background: linear-gradient(to right, #000000, #00FF00); min="0" max="255" value="0" onchange="update_color()">
+							<input type="range" class="color_picker" id="green" style="width:128px; background: linear-gradient(to right, #000000, #00FF00);" min="0" max="255" value="0" onchange="update_color()">
 						</div>
 						<br>
 						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
-							<input type="range" class="color_picker" id="blue" style="width:128px; background: linear-gradient(to right, #000000, #0000FF); min="0" max="255" value="0" onchange="update_color()">
+							<input type="range" class="color_picker" id="blue" style="width:128px; background: linear-gradient(to right, #000000, #0000FF);" min="0" max="255" value="0" onchange="update_color()">
 						</div>
 						<br>
 						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
-							<input type="range" class="color_picker" id="alpha" style="width:128px; background: linear-gradient(to right, #00000000, #000000FF);" min="0" max="1" value="1" step="0.01" onchange="update_color()">
+							<input type="range" class="color_picker" id="alpha" style="width:128px; background: linear-gradient(to right, #00000000, #000000FF);" min="0" max="255" value="255" step="0.01" onchange="update_color()">
 						</div>
 					</div>
 				</div>
@@ -71,7 +71,12 @@
 				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:left;">
 					Thickness:
 					<br>
-					<input type="range" id="thickness" min="1" max="64" step="1" value="1" style="width: 172px; margin:0px" onclick="update_properties('thickness')">
+					<input type="range" id="thickness" min="2" max="64" step="1" value="2" style="width: 172px; margin:0px" onclick="update_properties('thickness')">
+					<br>
+					<br>
+					Tolerance:
+					<br>
+					<input type="range" id="tolerance" min="0" max="1" step="0.01" value="0.5" style="width: 172px; margin:0px" onclick="update_properties('tolerance')">
 					<br>
 					<br>
 					<label class="check_container">
@@ -130,227 +135,22 @@
 </body>
 </html>
 
+<script src="layer.js"></script>
+
 <script>
 const width = 960;
 const height = 720;
 const twidth = 48;
 const theight = 36;
 let tool = "brush";
-let curcol = "rgba(0,0,0,255)";
+let curcol = new Color(0,0,0,255);
 let seccol = "rgba(255,255,255,255)"
 let layers = [];
-
-class Layer {
-	constructor(id) {
-		this.name = "Layer"+id;
-		this.id = id;
-		this.w = width;
-		this.h = height;
-		this.prevpoint = {x: -1, y: -1};
-		this.simplified_preview = true;
-		this.canvas = document.createElement('canvas');
-		this.canvas.width = this.w;
-		this.canvas.height = this.h;
-		this.backup = document.createElement('canvas');
-		this.backup.width = this.w;
-		this.backup.height = this.h;
-		this.thumbnail = document.getElementById('thumb_'+this.id);
-		this.thumbnail.width = twidth;
-		this.thumbnail.height = theight;
-		this.visible = true;
-		this.opacity = 100;
-	}
-
-	save(){
-		const ctx = this.backup.getContext('2d');
-		ctx.clearRect(0, 0, width, height);
-		ctx.drawImage(this.canvas, 0, 0);
-	}	
-
-	load(){
-		const ctx = this.canvas.getContext('2d');
-		ctx.clearRect(0, 0, width, height);
-		ctx.drawImage(this.backup, 0, 0);
-	}
-
-	setvisible(){
-		this.visible = document.getElementById('visibility_'+this.id).checked;
-		flatten_image();
-	}
-
-	setopacity(){
-		this.opacity = document.getElementById('opacity_'+this.id).value;
-		flatten_image();
-	}
-
-	draw_pen(x,y){
-		let ctx = this.canvas.getContext('2d');
-		this.draw_pen_on_context(ctx,x,y);
-		if(this.simplified_preview){
-			ctx = document.getElementById('cl').getContext('2d');
-			this.draw_pen_on_context(ctx,x,y);
-		}
-		this.prevpoint.x = x;
-		this.prevpoint.y = y;
-	}
-
-	draw_pen_on_context(ctx, x, y){
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = curcol;
-		ctx.fillStyle = curcol;
-		if(thickness>1){
-			ctx.beginPath();
-			ctx.arc(x, y, (thickness-1)/2,  0, 360);
-			ctx.fill();
-		}
-		if(this.prevpoint.x!=-1){
-			ctx.lineWidth = thickness;
-			ctx.beginPath();
-			ctx.moveTo(this.prevpoint.x, this.prevpoint.y); 
-		  ctx.lineTo(x, y);
-		  ctx.stroke();
-		}
-	}
-
-	erase(x,y){
-		const ctx = this.canvas.getContext('2d');
-		ctx.clearRect(x-(thickness/4),y-(thickness/2),thickness/2,thickness)
-	}
-
-	clear_pen(){
-		this.prevpoint.x = -1;
-	}
-
-	ruler_start(x,y){
-		this.prevpoint.x = x;
-		this.prevpoint.y = y;
-	}
-
-	ruler_render(x,y){
-		this.load();
-		const canvas = document.getElementById('cl');
-		const ctx = canvas.getContext('2d');
-		ctx.lineWidth = thickness;
-		ctx.beginPath();
-		ctx.moveTo(this.prevpoint.x, this.prevpoint.y); 
-		ctx.lineTo(x, y);
-		ctx.stroke();
-	}
-
-	ruler_end(x,y){
-		flatten_image();
-		const ctx = this.canvas.getContext('2d');
-		ctx.lineWidth = thickness;
-		ctx.beginPath();
-		ctx.moveTo(this.prevpoint.x, this.prevpoint.y); 
-		ctx.lineTo(x, y);
-		ctx.stroke();
-		this.prevpoint.x = -1;
-	}
-
-	fill(x,y){
-		x = Math.round(x);
-		y = Math.round(y);
-		const ctx = this.canvas.getContext('2d');
-		ctx.fillStyle = curcol;
-		const oldcolor = this.getpixel(ctx,x,y);
-		if(oldcolor == curcol){
-			return;
-		}
-		let stk = [];
-		let lim = 2000000;
-		stk.push({x: x,y: y, dir: -1});
-		while ((stk.length > 0) && (lim >=0)){
-			lim--;
-			const curpix = stk.pop();
-			if(!((curpix.x>=0) && (curpix.x<this.w) && (curpix.y>=0) && (curpix.y<this.h))){
-				continue;
-			}
-			ctx.fillRect(curpix.x,curpix.y,1,1);
-			switch(curpix.dir){
-	  		case(1):
-	  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
-	  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
-					if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
-	  			break;
-	  		case(2):
-	  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
-	  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
-	  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
-	  			break;
-	  		case(3):
-	  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
-	  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
-					if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
-	  			break;
-	  		case(4):
-	  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
-	  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
-					if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
-	  			break;
-	  		case(-1):
-	  			if (this.getpixel(ctx,curpix.x+1,curpix.y) == oldcolor) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
-	  			if (this.getpixel(ctx,curpix.x,curpix.y+1) == oldcolor) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
-	  			if (this.getpixel(ctx,curpix.x-1,curpix.y) == oldcolor) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
-					if (this.getpixel(ctx,curpix.x,curpix.y-1) == oldcolor) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
-					break;
-			}
-		}
-	}
-
-	getpixel(ctx,x,y){
-		var pix = ctx.getImageData(x,y,1,1).data;
-		return {r: pix[0], g: pix[1], b: pix[2], a: pix[3]};
-	}
-
-	sample(x,y){
-		const ctx = this.canvas.getContext('2d');
-		const col = this.getpixel(ctx,x,y);
-		col.a = col.a/255;
-		curcol = "rgba("+col.r+","+col.g+","+col.b+","+col.a+")";
-		document.getElementById('color_sample').style.background = curcol; 
-		document.getElementById('red').style.background = "linear-gradient(to right, rgba(0,"+col.g+","+col.b+","+col.a+"), rgba(255,"+col.g+","+col.b+","+col.a+"))";
-		document.getElementById('green').style.background = "linear-gradient(to right, rgba("+col.r+",0,"+col.b+","+col.a+"), rgba("+col.r+",255,"+col.b+","+col.a+"))";
-		document.getElementById('blue').style.background = "linear-gradient(to right, rgba("+col.r+","+col.g+",0,"+col.a+"), rgba("+col.r+","+col.g+",255,"+col.a+"))";
-		document.getElementById('alpha').style.background = "linear-gradient(to right, rgba("+col.r+","+col.g+","+col.b+",0), rgba("+col.r+","+col.g+","+col.b+",1))";
-		document.getElementById('red').value = col.r;
-		document.getElementById('green').value = col.g;
-		document.getElementById('blue').value = col.b;
-		document.getElementById('alpha').value = col.a;
-	}
-
-
-	update_color(){
-		const ctx = this.canvas.getContext('2d');
-		ctx.fillStyle = curcol;
-		ctx.strokeStyle = curcol;
-	}
-
-	getdata() {
-		return this.canvas.getContext('2d').getImageData(0, 0, this.w, this.h);
-	}
-
-	update_thumbnail() {
-		let ctx = this.thumbnail.getContext('2d');
-		ctx.clearRect(0,0,twidth,theight);
-		let imgData = ctx.getImageData(0, 0, twidth, theight);
-		let data = imgData.data;
-		const data2 = this.getdata().data;
-		for (var i = 0; i < theight; i += 1) {
-			for (var j = 0; j < twidth*4; j += 4) {
-				data[i*twidth*4+j] = data2[i*twidth*1600+j*20];
-				data[i*twidth*4+j+1] = data2[i*twidth*1600+j*20+1];
-				data[i*twidth*4+j+2] = data2[i*twidth*1600+j*20+2];
-				data[i*twidth*4+j+3] = data2[i*twidth*1600+j*20+3];
-			}
-		}
-		ctx.putImageData(imgData, 0, 0);
-	}
-}
+let tol = 0.75;
 
 var p = [];
 var k = 0;
-var thickness = 1;
+var thickness = 2;
 var layer_increment = 1;
 var activelayer = 0;
 var newl = new Layer(0);
@@ -432,12 +232,17 @@ function update_color(){
 	const green = document.getElementById('green').value;
 	const blue = document.getElementById('blue').value;
 	const alpha = document.getElementById('alpha').value;
-	curcol = "rgba("+red+","+green+","+blue+","+alpha+")";
-	document.getElementById('color_sample').style.background = curcol; 
-	document.getElementById('red').style.background = "linear-gradient(to right, rgba(0,"+green+","+blue+","+alpha+"), rgba(255,"+green+","+blue+","+alpha+"))";
-	document.getElementById('green').style.background = "linear-gradient(to right, rgba("+red+",0,"+blue+","+alpha+"), rgba("+red+",255,"+blue+","+alpha+"))";
-	document.getElementById('blue').style.background = "linear-gradient(to right, rgba("+red+","+green+",0,"+alpha+"), rgba("+red+","+green+",255,"+alpha+"))";
+	curcol = new Color(red,green,blue,alpha);
+	document.getElementById('color_sample').style.background = curcol.toRGBA(); 
+	document.getElementById('red').style.background = "linear-gradient(to right, rgba(0,"+green+","+blue+",1), rgba(255,"+green+","+blue+",1))";
+	document.getElementById('green').style.background = "linear-gradient(to right, rgba("+red+",0,"+blue+",1), rgba("+red+",255,"+blue+",1))";
+	document.getElementById('blue').style.background = "linear-gradient(to right, rgba("+red+","+green+",0,1), rgba("+red+","+green+",255,1))";
 	document.getElementById('alpha').style.background = "linear-gradient(to right, rgba("+red+","+green+","+blue+",0), rgba("+red+","+green+","+blue+",1))";
+	layers[activelayer].update_color();
+	const canvas = document.getElementById('cl');
+	const ctx = canvas.getContext('2d');
+	ctx.strokeStyle = curcol.toRGBA();
+	ctx.fillStyle = curcol.toRGBA();
 }
 
 /*
@@ -646,6 +451,9 @@ function update_properties(prop){
 	switch(prop){
 		case('thickness'):
 			thickness = document.getElementById('thickness').value;
+			break;
+		case('tolerance'):
+			tol = document.getElementById('tolerance').value;
 			break;
 	}
 }

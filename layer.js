@@ -56,16 +56,7 @@ class Layer {
 		const ctx = this.canvas.getContext('2d');
 		ctx.clearRect(0, 0, width, height);
 		ctx.drawImage(this.backup, 0, 0);
-	}
-
-	setvisible(){
-		this.visible = document.getElementById('visibility_'+this.id).checked;
-		flatten_image();
-	}
-
-	setopacity(){
-		this.opacity = document.getElementById('opacity_'+this.id).value;
-		flatten_image();
+		update_thumbnail();
 	}
 
 	draw_pen(x,y){
@@ -138,7 +129,7 @@ class Layer {
 		const imgData = ctx.getImageData(0,0,this.w,this.h);
 		const data = imgData.data;
 		const oldcolor = this.getpixel(data,x,y);
-		if(oldcolor.compare(curcol,0.05)){
+		if(oldcolor.compare(curcol,0.02)){
 			return;
 		}
 		let stk = [];
@@ -157,30 +148,30 @@ class Layer {
 			data[curpix.y*4*this.w+curpix.x*4+3] = curcol.a;
 			switch(curpix.dir){
 	  		case(1):
-				if (oldcolor.compare(this.getpixel(data,curpix.x+1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x+1,curpix.y),0.05)) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
-	  			if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y+1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y+1),0.05)) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
-				if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y-1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y-1),0.05)) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
+				if (oldcolor.compare(this.getpixel(data,curpix.x+1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x+1,curpix.y),0.02)) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
+	  			if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y+1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y+1),0.02)) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
+				if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y-1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y-1),0.02)) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
 	  			break;
 	  		case(2):
-				if (oldcolor.compare(this.getpixel(data,curpix.x+1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x+1,curpix.y),0.05)) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
-	  			if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y+1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y+1),0.05)) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
-	  			if (oldcolor.compare(this.getpixel(data,curpix.x-1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x-1,curpix.y),0.05)) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
+				if (oldcolor.compare(this.getpixel(data,curpix.x+1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x+1,curpix.y),0.02)) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
+	  			if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y+1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y+1),0.02)) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
+	  			if (oldcolor.compare(this.getpixel(data,curpix.x-1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x-1,curpix.y),0.02)) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
 	  			break;
 	  		case(3):
-	  			if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y+1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y+1),0.05)) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
-	  			if (oldcolor.compare(this.getpixel(data,curpix.x-1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x+1,curpix.y),0.05)) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
-				if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y-1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y-1),0.05)) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
+	  			if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y+1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y+1),0.02)) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
+	  			if (oldcolor.compare(this.getpixel(data,curpix.x-1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x+1,curpix.y),0.02)) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
+				if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y-1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y-1),0.02)) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
 	  			break;
 	  		case(4):
-	  			if (oldcolor.compare(this.getpixel(data,curpix.x+1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x+1,curpix.y),0.05)) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
-	  			if (oldcolor.compare(this.getpixel(data,curpix.x-1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x-1,curpix.y),0.05)) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
-				if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y-1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y-1),0.05)) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
+	  			if (oldcolor.compare(this.getpixel(data,curpix.x+1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x+1,curpix.y),0.02)) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
+	  			if (oldcolor.compare(this.getpixel(data,curpix.x-1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x-1,curpix.y),0.02)) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
+				if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y-1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y-1),0.02)) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
 	  			break;
 	  		case(-1):
-				if (oldcolor.compare(this.getpixel(data,curpix.x+1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x+1,curpix.y),0.05)) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
-	  			if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y+1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y+1),0.05)) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
-	  			if (oldcolor.compare(this.getpixel(data,curpix.x-1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x-1,curpix.y),0.05)) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
-				if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y-1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y-1),0.05)) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
+				if (oldcolor.compare(this.getpixel(data,curpix.x+1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x+1,curpix.y),0.02)) stk.push({x: curpix.x+1,y: curpix.y, dir:1});
+	  			if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y+1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y+1),0.02)) stk.push({x: curpix.x,y: curpix.y+1, dir:2});
+	  			if (oldcolor.compare(this.getpixel(data,curpix.x-1,curpix.y),tol) && !curcol.compare(this.getpixel(data,curpix.x-1,curpix.y),0.02)) stk.push({x: curpix.x-1,y: curpix.y, dir:3});
+				if (oldcolor.compare(this.getpixel(data,curpix.x,curpix.y-1),tol) && !curcol.compare(this.getpixel(data,curpix.x,curpix.y-1),0.02)) stk.push({x: curpix.x,y: curpix.y-1, dir:4});
 				break;
 			}
 		}
@@ -201,7 +192,9 @@ class Layer {
 
 	sample(x,y){
 		const ctx = this.canvas.getContext('2d');
-		const col = this.getpixel(ctx,x,y);
+		const imgData = ctx.getImageData(x,y,1,1);
+		const data = imgData.data;
+		const col = this.getpixel(data,0,0);
 		curcol = col;
 		document.getElementById('color_sample').style.background = curcol.toRGBA(); 
 		document.getElementById('red').style.background = "linear-gradient(to right, rgba(0,"+col.g+","+col.b+",1), rgba(255,"+col.g+","+col.b+",1))";

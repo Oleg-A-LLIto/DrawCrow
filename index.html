@@ -114,11 +114,17 @@
 						<canvas class="thumbnail" id="thumb_0"></canvas>
 						<div style="width:130px;">
 							Background
-							<input type="range" id="opacity_0" style="width:128px;" min="0" max="100" value="100" checked="true" onchange="layers[0].setopacity()">
+							<input type="range" id="opacity_0" style="width:128px;" min="0" max="100" value="100" checked="true" onchange="update_layer_properties('opacity',0)">
 						</div>
 						<div style="width:72px;">
-							<input type="checkbox" id="visibility_0" checked="true" onclick="layers[0].setvisible()">
-							<img src="icons/view.png">
+							<div style="display:flex; justify-content: space-around;">
+								<label class="check_container">
+									<img src="icons/view.png">
+									<input type="checkbox" id="visible_0" checked="true" onclick="update_layer_properties('visible',0)">
+									<span class="checkmark"></span>
+								</label>
+								<img class="button" style="align-self: center;" src="icons/delete.png" onclick="delete_layer(0)">
+							</div>
 							<select id="mode_0">
 							  <option value="Normal" selected>Normal</option>
 							  <option value="Add">Add</option>
@@ -163,8 +169,8 @@ function get_picture(){
 
 
 
-function switch_to_layer(laynum){
-	activelayer = laynum;
+function switch_to_layer(layer_id){
+	activelayer = idToNum(layer_id);
 	plates = document.getElementsByClassName("layer_plate");
 	for(let i = 0; i<plates.length; i++){
 		if(plates[i].id == ("plate_"+layers[activelayer].id)){
@@ -177,28 +183,52 @@ function switch_to_layer(laynum){
 	layers[activelayer].update_color();
 }
 
-function new_layer(){
-	var laynum = layer_increment++;
-	let newplate = document.createElement("div");
-	newplate.setAttribute("onclick","switch_to_layer("+laynum+");");
-	newplate.classList.add("layer_plate");
-	newplate.setAttribute("id","plate_"+laynum);
-	newplate.innerHTML += '<canvas class="thumbnail" id="thumb_'+laynum+'"></canvas>';
-  newplate.appendChild(document.createTextNode("Layer"+laynum));
-  let vischeck = document.createElement("input"); 
-  vischeck.setAttribute("id","visibility_"+laynum);
-  vischeck.setAttribute("type","checkbox");
-  vischeck.setAttribute("checked","true");
-  vischeck.setAttribute("onclick","layers["+laynum+"].setvisible()");
-  newplate.appendChild(vischeck);
-  newplate.innerHTML += '<input type="range" id="opacity_'+laynum+'" width="100px" min="0" max="100" value="100" checked="true" onchange="layers['+laynum+'].setopacity()">';
-  var ll = document.getElementById("layerslist");
-  //ll.insertBefore(document.createElement("br"), ll.firstChild);
-  ll.insertBefore(newplate, ll.firstChild);
-  var newl = new Layer(laynum);
-	layers.push(newl);
-  switch_to_layer(laynum);
+function idToNum(layer_id){
+	for(let i = 0; i < layers.length; i++){
+		if (layers[i].id == layer_id){
+			return i;
+		}
+	}
 }
+
+function new_layer(){
+	var layer_id = layer_increment++;
+	let newplate = document.createElement("div");
+	newplate.setAttribute("onclick","switch_to_layer("+layer_id+");");
+	newplate.classList.add("layer_plate");
+	newplate.setAttribute("id","plate_"+layer_id);
+	newplate.innerHTML += '<canvas class="thumbnail" id="thumb_'+layer_id+'"></canvas><div style="width:130px;">	Layer'+layer_id+'	<input type="range" id="opacity_'+layer_id+'" style="width:128px;" min="0" max="100" value="100" checked="true" onchange="update_layer_properties(\'opacity\','+layer_id+')"></div><div style="width:72px;">	<div style="display:flex; justify-content: space-around;">		<label class="check_container">			<img src="icons/view.png">			<input type="checkbox" id="visible_'+layer_id+'" checked="true" onclick="update_layer_properties(\'visible\','+layer_id+')">			<span class="checkmark"></span>		</label>		<img class="button" style="align-self: center;" src="icons/delete.png" onclick="delete_layer('+layer_id+')">	</div>	<select id="mode_'+layer_id+'">	  <option value="Normal" selected>Normal</option>	  <option value="Add">Add</option>	  <option value="Multiply">Multiply</option>	  <option value="Negate">Negate</option>	</select></div>';
+	var ll = document.getElementById("layerslist");
+	//ll.insertBefore(document.createElement("br"), ll.firstChild);
+	ll.insertBefore(newplate, ll.firstChild);
+	var newl = new Layer(layer_id);
+	layers.push(newl);
+	switch_to_layer(layer_id);
+}
+
+/*
+<canvas class="thumbnail" id="thumb_0"></canvas>
+<div style="width:130px;">
+	Background
+	<input type="range" id="opacity_0" style="width:128px;" min="0" max="100" value="100" checked="true" onchange="update_layer_properties('opacity',0)">
+</div>
+<div style="width:72px;">
+	<div style="display:flex; justify-content: space-around;">
+		<label class="check_container">
+			<img src="icons/view.png">
+			<input type="checkbox" id="visible_0" checked="true" onclick="update_layer_properties('visible',0)">
+			<span class="checkmark"></span>
+		</label>
+		<img class="button" style="align-self: center;" src="icons/delete.png" onclick="delete_layer(0)">
+	</div>
+	<select id="mode_0">
+	  <option value="Normal" selected>Normal</option>
+	  <option value="Add">Add</option>
+	  <option value="Multiply">Multiply</option>
+	  <option value="Negate">Negate</option>
+	</select>
+</div>
+*/
 
 function flatten_image(){
 	const canvas = document.getElementById('cl');
@@ -458,14 +488,37 @@ function update_properties(prop){
 	}
 }
 
-function calc_for_point(step, sp){
-	var t = step/number;
-	var c = {x: 3 * (p[1].x - p[0].x), y: 3 * (p[1].y - p[0].y)};
-	var b = {x: 3 * (p[3].x - p[1].x) - c.x, y: 3 * (p[3].y - p[1].y) - c.y};
-	var a = {x: p[2].x - p[0].x - c.x - b.x, y: p[2].y - p[0].y - c.y - b.y};
-  	var x = (a.x * Math.pow(t, 3)) + (b.x * Math.pow(t, 2)) + (c.x * t) + p[0].x;
-  	var y = (a.y * Math.pow(t, 3)) + (b.y * Math.pow(t, 2)) + (c.y * t) + p[0].y;
-	return {x: x, y: y};
+function update_layer_properties(prop,layer_id){
+	layers.forEach(function(lay) {
+		if (lay.id == layer_id) {
+			switch(prop){
+				case('opacity'):
+					lay.opacity = document.getElementById('opacity_'+layer_id).value;
+					break;
+				case('visible'):
+					lay.visible = document.getElementById('visible_'+layer_id).checked;
+					break;
+			}
+			flatten_image();
+		}
+	})
+}
+
+function swap_up(){
+	let temp = layers[activelayer + 1];
+	layers[activelayer + 1] = layers[activelayer];
+	layers[activelayer] = temp;	
+}
+
+function delete_layer(layer_id){
+	let laynum = idToNum(layer_id);
+	temp = layers.splice(laynum,1);
+	delete temp;
+	activelayer = ((laynum < layers.length) ? laynum : laynum-1);
+	alert(activelayer);
+	document.getElementById('plate_'+layer_id).remove();
+	document.getElementById('plate_'+layers[activelayer].id).classList.add("selected");
+	flatten_image();
 }
 
 </script>

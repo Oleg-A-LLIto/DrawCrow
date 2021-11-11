@@ -1,9 +1,9 @@
 <html>
 <link rel="stylesheet" type="text/css" href="styles.css">
 <link rel="icon" href="favicon.ico">
-<title>DrawChill</title>
+<title>DrawCrow</title>
 <body>
-<div class="logo"><img src="logo.png" style="margin-top: -4px; padding-right: 10px;">DrawChill</div>
+<div class="logo"><img src="logo.png" style="margin-top: -4px; padding-right: 10px;">DrawCrow</div>
 <div style="display: flex; text-align:center;">
 	<div style="margin-left: auto; margin-right: auto; display: flex;">
 		<div style="display: flex; flex-direction: column;">
@@ -26,11 +26,8 @@
 				<img style="align-self: center;" src="icons/reply-arrow.png">
 			</div>
 		</div>
-		<div style="display: flex; width: 963px; height: 720px;">
-			<canvas id="cl" class="ccl" width=960px height=720px onmousedown="action_start()" onmouseup="action_end()" onmouseleave="action_interrupted()" onmousemove="action_process()" style="border-style: solid; border-width: 1px; cursor: crosshair; width: 960px; height: 720px;" ></canvas>
-			<img src="checkers.png" style="width: 960px; position:  relative; left: -961px; top: 1px; z-index:-1;">
-			<clear>
-			</clear>
+		<div style="width: 962px; height: 722px; overflow-y: auto; overflow-x: auto;">
+			<canvas id="cl" class="ccl" width=960px height=720px onmousedown="action_start()" onmouseup="action_end()" onmouseleave="action_interrupted()" onmousemove="action_process()" style="border-style: solid; border-width: 1px; cursor: crosshair;" ></canvas>
 		</div>
 		<div style="display: flex; flex-direction: column;">
 			<div class="right_sidebar">
@@ -94,18 +91,18 @@
 						</div>
 					</div>
 					<div>
-						<div class="layers_button button" onclick="new_layer()">
-							<img src="icons/plus-square-line.png">
+						<div class="layers_button button unavailable" id="button_flatten" onclick="flatten_down()">
+							<img src="icons/flatten.png">
 						</div>
 					</div>
 					<div>
-						<div class="layers_button button" onclick="new_layer()">
-							<img src="icons/plus-square-line.png">
+						<div class="layers_button button unavailable" id="button_layer_down" onclick="swap_down()">
+							<img src="icons/arrow.png" style="-webkit-transform: scaleY(-1); transform: scaleY(-1);">
 						</div>
 					</div>
 					<div>
-						<div class="layers_button button" onclick="new_layer()">
-							<img src="icons/plus-square-line.png">
+						<div class="layers_button button unavailable" id="button_layer_up" onclick="swap_up()">
+							<img src="icons/arrow.png">
 						</div>
 					</div>
 				</div>
@@ -118,12 +115,12 @@
 						</div>
 						<div style="width:72px;">
 							<div style="display:flex; justify-content: space-around;">
-								<label class="check_container">
+								<label class="check_container layer_setting">
 									<img src="icons/view.png">
 									<input type="checkbox" id="visible_0" checked="true" onclick="update_layer_properties('visible',0)">
 									<span class="checkmark"></span>
 								</label>
-								<img class="button" style="align-self: center;" src="icons/delete.png" onclick="delete_layer(0)">
+								<img class="button layer_setting" style="align-self: center;" src="icons/delete.png" onclick="delete_layer(idToNum(0))">
 							</div>
 							<select id="mode_0">
 							  <option value="Normal" selected>Normal</option>
@@ -167,13 +164,27 @@ function get_picture(){
 	
 }
 
-
+function reorder_plates(){
+	const ll = document.getElementById("layerslist");
+	const plates = document.getElementsByClassName("layer_plate");
+	for(let i = layers.length-1; i >= 0; i--){
+		for(let j = 0; j < plates.length; j++){
+		    if(plates[j].id == ("plate_"+layers[i].id)){
+				ll.append(plates[j]);
+				break;
+			}
+		}
+	}
+}
 
 function switch_to_layer(layer_id){
+	if(event.target.classList.contains("layer_setting")){
+		return;
+	}
 	activelayer = idToNum(layer_id);
 	plates = document.getElementsByClassName("layer_plate");
 	for(let i = 0; i<plates.length; i++){
-		if(plates[i].id == ("plate_"+layers[activelayer].id)){
+	    if(plates[i].id == ("plate_"+layers[activelayer].id)){
 			plates[i].classList.add("selected");
 		}
 		else{
@@ -181,6 +192,7 @@ function switch_to_layer(layer_id){
 		}
 	}
 	layers[activelayer].update_color();
+	update_layer_buttons();
 }
 
 function idToNum(layer_id){
@@ -192,17 +204,16 @@ function idToNum(layer_id){
 }
 
 function new_layer(){
-	var layer_id = layer_increment++;
+	const layer_id = layer_increment++;
 	let newplate = document.createElement("div");
 	newplate.setAttribute("onclick","switch_to_layer("+layer_id+");");
 	newplate.classList.add("layer_plate");
 	newplate.setAttribute("id","plate_"+layer_id);
-	newplate.innerHTML += '<canvas class="thumbnail" id="thumb_'+layer_id+'"></canvas><div style="width:130px;">	Layer'+layer_id+'	<input type="range" id="opacity_'+layer_id+'" style="width:128px;" min="0" max="100" value="100" checked="true" onchange="update_layer_properties(\'opacity\','+layer_id+')"></div><div style="width:72px;">	<div style="display:flex; justify-content: space-around;">		<label class="check_container">			<img src="icons/view.png">			<input type="checkbox" id="visible_'+layer_id+'" checked="true" onclick="update_layer_properties(\'visible\','+layer_id+')">			<span class="checkmark"></span>		</label>		<img class="button" style="align-self: center;" src="icons/delete.png" onclick="delete_layer('+layer_id+')">	</div>	<select id="mode_'+layer_id+'">	  <option value="Normal" selected>Normal</option>	  <option value="Add">Add</option>	  <option value="Multiply">Multiply</option>	  <option value="Negate">Negate</option>	</select></div>';
-	var ll = document.getElementById("layerslist");
+	newplate.innerHTML += '<canvas class="thumbnail" id="thumb_'+layer_id+'"></canvas><div style="width:130px;">	Layer'+layer_id+'	<input type="range" id="opacity_'+layer_id+'" style="width:128px;" min="0" max="100" value="100" checked="true" onchange="update_layer_properties(\'opacity\','+layer_id+')"></div><div style="width:72px;">	<div style="display:flex; justify-content: space-around;">		<label class="check_container">			<img src="icons/view.png">			<input type="checkbox" id="visible_'+layer_id+'" checked="true" onclick="update_layer_properties(\'visible\','+layer_id+')">			<span class="checkmark"></span>		</label>		<img class="button layer_setting" style="align-self: center;" src="icons/delete.png" onclick="delete_layer(idToNum('+layer_id+'))">	</div>	<select id="mode_'+layer_id+'">	  <option value="Normal" selected>Normal</option>	  <option value="Add">Add</option>	  <option value="Multiply">Multiply</option>	  <option value="Negate">Negate</option>	</select></div>';
+	const ll = document.getElementById("layerslist");
 	//ll.insertBefore(document.createElement("br"), ll.firstChild);
 	ll.insertBefore(newplate, ll.firstChild);
-	var newl = new Layer(layer_id);
-	layers.push(newl);
+	layers.push(new Layer(layer_id));
 	switch_to_layer(layer_id);
 }
 
@@ -240,21 +251,33 @@ function flatten_image(){
 		if(layers[i].visible==false)
 			continue;
 		data2 = layers[i].getdata().data;
-		for (var j = 0; j < data.length; j += 4) {
-			data2op = data2[j+3] * (layers[i].opacity/100);
-			var culling = 255 - (data2op + data[j+3]);
-			if (culling > 0) culling = 0;
-			var ratio = data2op/(data2op + data[j+3] + culling);
-			data[j] = data2[j]*ratio + data[j]*(1-ratio); // red
-			data[j+1] = data2[j+1]*ratio + data[j+1]*(1-ratio);//green
-			data[j+2] = data2[j+2]*ratio + data[j+2]*(1-ratio); //blue
-			data[j+3] = Math.min(data2op + data[j+3], 255);
-		}
+		data = merge(data, data2, layers[i].opacity);
 		//imgData.data = data;
-		ctx.putImageData(imgData, 0, 0);
+	}
+	ctx.putImageData(imgData, 0, 0);
+}
+
+function flatten_down(){
+	if(activelayer>0){
+		layers[activelayer].merge_with(layers[activelayer-1]);
+		delete_layer(activelayer);
+		layers[activelayer].update_thumbnail();
 	}
 }
 
+function merge(data, data2, op2){
+	for (var j = 0; j < data.length; j += 4) {
+		const data2op = data2[j+3] * (op2/100);
+		let culling = 255 - (data2op + data[j+3]);
+		if (culling > 0) culling = 0;
+		const ratio = data2op/(data2op + data[j+3] + culling);
+		data[j] = data2[j]*ratio + data[j]*(1-ratio); // red
+		data[j+1] = data2[j+1]*ratio + data[j+1]*(1-ratio);//green
+		data[j+2] = data2[j+2]*ratio + data[j+2]*(1-ratio); //blue
+		data[j+3] = Math.min(data2op + data[j+3], 255);
+	}
+	return data;
+}
 
 
 function update_color(){
@@ -504,21 +527,59 @@ function update_layer_properties(prop,layer_id){
 	})
 }
 
-function swap_up(){
-	let temp = layers[activelayer + 1];
-	layers[activelayer + 1] = layers[activelayer];
-	layers[activelayer] = temp;	
+function update_layer_buttons(){
+	if(activelayer == layers.length-1){
+		document.getElementById("button_layer_up").classList.add("unavailable");
+	}
+	else{
+		document.getElementById("button_layer_up").classList.remove("unavailable");
+	}
+	if(activelayer == 0){
+		document.getElementById("button_layer_down").classList.add("unavailable");
+		document.getElementById("button_flatten").classList.add("unavailable");
+	}
+	else{
+		document.getElementById("button_layer_down").classList.remove("unavailable");
+		document.getElementById("button_flatten").classList.remove("unavailable");
+	}
 }
 
-function delete_layer(layer_id){
-	let laynum = idToNum(layer_id);
-	temp = layers.splice(laynum,1);
-	delete temp;
-	activelayer = ((laynum < layers.length) ? laynum : laynum-1);
-	alert(activelayer);
-	document.getElementById('plate_'+layer_id).remove();
-	document.getElementById('plate_'+layers[activelayer].id).classList.add("selected");
+
+function swap_up(){
+	if(activelayer<layers.length-1){
+		let temp = layers[activelayer + 1];
+		layers[activelayer + 1] = layers[activelayer];
+		layers[activelayer] = temp;	
+	}
+	activelayer += 1;
+	reorder_plates();
+	update_layer_buttons();
 	flatten_image();
 }
 
+function swap_down(){
+	if(activelayer>0){
+		let temp = layers[activelayer - 1];
+		layers[activelayer - 1] = layers[activelayer];
+		layers[activelayer] = temp;	
+	}
+	activelayer -= 1;
+	reorder_plates();
+	update_layer_buttons();
+	flatten_image();
+}
+
+
+function delete_layer(laynum){
+	const layer_id = layers[laynum].id;
+	temp = layers.splice(laynum,1);
+	delete temp;
+	document.getElementById('plate_'+layer_id).remove();
+	if(activelayer==laynum){
+		activelayer = ((laynum > 0) ? laynum-1 : laynum);
+		layers[activelayer].update_color();
+		document.getElementById('plate_'+layers[activelayer].id).classList.add("selected");
+	}
+	flatten_image();
+}
 </script>

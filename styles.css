@@ -6,6 +6,10 @@ body{
 	font-family: 'Gotham Pro', sans-serif;
 }
 
+canvas{
+  background: url(checkers.png);
+}
+
 .logo{
 	padding-left: auto;
 	display: flex;
@@ -102,6 +106,16 @@ input[type=range] {
   z-index:1; 
   left: -2px; 
   top: -2px;
+}
+
+.unavailable {
+  background-color: #3E3E3E;
+  filter: brightness(75%);
+}
+
+.unavailable:hover {
+  background-color: #3E3E3E;
+  filter: brightness(75%);
 }
 
 input[type=range]::-webkit-slider-thumb {

@@ -56,7 +56,7 @@ class Layer {
 		const ctx = this.canvas.getContext('2d');
 		ctx.clearRect(0, 0, width, height);
 		ctx.drawImage(this.backup, 0, 0);
-		update_thumbnail();
+		this.update_thumbnail();
 	}
 
 	draw_pen(x,y){
@@ -207,7 +207,6 @@ class Layer {
 		document.getElementById('alpha').value = col.a;
 	}
 
-
 	update_color(){
 		const ctx = this.canvas.getContext('2d');
 		ctx.fillStyle = curcol.toRGBA();
@@ -233,5 +232,16 @@ class Layer {
 			}
 		}
 		ctx.putImageData(imgData, 0, 0);
+	}
+
+	merge_with(layer2){
+		const ctx = this.canvas.getContext('2d');
+		const imgData = ctx.getImageData(0,0,this.w,this.h);
+		const data = imgData.data;
+		const ctx2 = layer2.canvas.getContext('2d');
+		const imgData2 = ctx2.getImageData(0,0,layer2.w,layer2.h);
+		let data2 = imgData2.data;
+		data2 = merge(data2,data,this.opacity);
+		ctx2.putImageData(imgData2,0,0);
 	}
 }

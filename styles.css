@@ -90,6 +90,7 @@ canvas{
 
 input[type=range] {
     -webkit-appearance: none;
+    height: 12px;
     background-color: #494E56;
 }
 
@@ -128,10 +129,14 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 input[type=range]::-moz-range-thumb {
-  width: 12px;
+  -webkit-appearance: none;
   height: 12px;
+  width: 12px;
   background: #FFD369;
+  border: none;
+  border-radius: 0px; 
   cursor: pointer;
+  margin-top: 0;
 }
 
 .check_container {

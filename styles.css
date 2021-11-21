@@ -79,6 +79,7 @@ canvas{
 
 .button {
 	background-color: #393E46;
+  cursor: pointer;
 }
 
 .button:hover {
@@ -162,7 +163,6 @@ input[type=range]::-moz-range-thumb {
   user-select: none;
 }
 
-/* Hide the browser's default checkbox */
 .check_container input {
   position: absolute;
   opacity: 0;
@@ -171,7 +171,6 @@ input[type=range]::-moz-range-thumb {
   width: 0;
 }
 
-/* Create a custom checkbox */
 .checkmark {
   position: absolute;
   top: 0;
@@ -214,4 +213,30 @@ input[type=range]::-moz-range-thumb {
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
   transform: rotate(45deg);
+}
+
+select {
+  background-color: #494E56;
+  border: none;
+  margin: 0;
+  width: 100%;
+  font-family: inherit;
+  font-size: 14;
+  color: #FFFFFF;
+  text-align: center;
+  line-height: inherit;
+  border-radius: 0px;
+}
+
+select:focus {
+  border: none;
+}
+
+select:not {
+  border: none;
+}
+
+
+option:checked {
+    box-shadow: 0 0 10px 100px #ffb7b7 inset;
 }

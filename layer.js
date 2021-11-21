@@ -44,6 +44,7 @@ class Layer {
 		this.thumbnail.height = theight;
 		this.visible = true;
 		this.opacity = 100;
+		this.mode = 'normal';
 	}
 
 	save(){
@@ -196,6 +197,8 @@ class Layer {
 		const data = imgData.data;
 		const col = this.getpixel(data,0,0);
 		curcol = col;
+		update_color();
+		this.update_color();
 		document.getElementById('color_sample').style.background = curcol.toRGBA(); 
 		document.getElementById('red').style.background = "linear-gradient(to right, rgba(0,"+col.g+","+col.b+",1), rgba(255,"+col.g+","+col.b+",1))";
 		document.getElementById('green').style.background = "linear-gradient(to right, rgba("+col.r+",0,"+col.b+",1), rgba("+col.r+",255,"+col.b+",1))";
@@ -241,7 +244,7 @@ class Layer {
 		const ctx2 = layer2.canvas.getContext('2d');
 		const imgData2 = ctx2.getImageData(0,0,layer2.w,layer2.h);
 		let data2 = imgData2.data;
-		data2 = merge(data2,data,this.opacity);
+		data2 = merge(data2,data,this.opacity,this.mode);
 		ctx2.putImageData(imgData2,0,0);
 	}
 }

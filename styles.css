@@ -109,6 +109,23 @@ input[type=range] {
     background-color: #494E56;
 }
 
+input[type=number] {
+    -webkit-appearance: none;
+    height: 20px;
+    width: 40px;
+    color: #FFF;
+    background-color: #494E56;
+    -moz-appearance: textfield;
+    font-family: 'Gotham Pro Regular';
+    border: 0px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .color_picker::-webkit-slider-thumb {
   border: 1px solid #000000;
 }

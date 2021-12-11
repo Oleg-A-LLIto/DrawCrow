@@ -25,13 +25,16 @@
 			<div class="left_sidebar_button button" onclick="cancel()">
 				<img style="align-self: center;" src="icons/reply-arrow.png">
 			</div>
+			<div class="left_sidebar_button button" onclick="savefile()">
+				<img style="align-self: center;" src="icons/save.png">
+			</div>
 		</div>
 		<div style="width: 962px; height: 722px; overflow-y: auto; overflow-x: auto;">
 			<canvas id="cl" class="ccl" width=960px height=720px onmousedown="action_start()" onmouseup="action_end()" onmouseleave="action_interrupted()" onmousemove="action_process()" style="border-style: solid; border-width: 1px; cursor: crosshair;" ></canvas>
 		</div>
 		<div style="display: flex; flex-direction: column;">
 			<div class="right_sidebar">
-				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:right; display: flex; justify-content: space-around;">
+				<div style="margin-left: auto; margin-right: auto; padding: 16px; text-align:right; display: flex; justify-content: space-around;">
 					<div style="display: block; height: 128px;">
 						<div style="width: 128px; height: 128px;">
 							<div id="color_sample" style="width: 128px; height: 128px; background-color: #000000; position:  relative; z-index:3;">
@@ -45,33 +48,38 @@
 					</div>
 					<div style="display: flex; flex-direction: column; text-align: left; justify-content: space-around;">
 						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
-							<input type="range" class="color_picker" id="red" style="width:128px; background: linear-gradient(to right, #000000, #FF0000);" min="0" max="255" value="0" onchange="update_color()">
+							<input type="range" class="color_picker" id="red" style="width:128px; background: linear-gradient(to right, #000000, #FF0000);" min="0" max="255" value="0" onchange="update_color('bar')">
 						</div>
 						<br>
 						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
-							<input type="range" class="color_picker" id="green" style="width:128px; background: linear-gradient(to right, #000000, #00FF00);" min="0" max="255" value="0" onchange="update_color()">
+							<input type="range" class="color_picker" id="green" style="width:128px; background: linear-gradient(to right, #000000, #00FF00);" min="0" max="255" value="0" onchange="update_color('bar')">
 						</div>
 						<br>
 						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
-							<input type="range" class="color_picker" id="blue" style="width:128px; background: linear-gradient(to right, #000000, #0000FF);" min="0" max="255" value="0" onchange="update_color()">
+							<input type="range" class="color_picker" id="blue" style="width:128px; background: linear-gradient(to right, #000000, #0000FF);" min="0" max="255" value="0" onchange="update_color('bar')">
 						</div>
 						<br>
 						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
-							<input type="range" class="color_picker" id="alpha" style="width:128px; background: linear-gradient(to right, #00000000, #000000FF);" min="0" max="255" value="255" step="0.01" onchange="update_color()">
+							<input type="range" class="color_picker" id="alpha" style="width:128px; background: linear-gradient(to right, #00000000, #000000FF);" min="0" max="255" value="255" step="0.01" onchange="update_color('bar')">
 						</div>
 					</div>
+				</div>
+				<div style="justify-content: space-around; margin-bottom: 16px;">
+					R: <input type="number" id="rednum" min="0" max="255" value="0" onchange="update_color('num')">
+					G: <input type="number" id="greennum" min="0" max="255" value="0" onchange="update_color('num')">
+					B: <input type="number" id="bluenum" min="0" max="255" value="0" onchange="update_color('num')">
+					A: <input type="number" id="alphanum" min="0" max="255" value="255" onchange="update_color('num')">
 				</div>
 				<clear>
 				</clear>
 			</div>
-			<div class="right_sidebar" style="height: 228px;">
-				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:left;">
+			<div class="right_sidebar" style="height: 198px;">
+				<div style="margin-left: auto; margin-right: auto; padding: 20px; padding-top: 12px; text-align:left;">
 					<div id="thickness_settings" style="display: flex; margin-bottom: 16px;">
 						<div style="height: 64px; display: flex;  justify-content: center;  flex-direction: column;">
 							Thickness:
 							<br>
-							<input type="range" id="thickness" min="2" max="64" step="1" value="2" style="width: 172px; margin:3px" onclick="update_properties('thickness')">
-							<br>
+							<input type="range" id="thickness" min="2" max="64" step="1" value="2" style="width: 172px; margin:3px" onclick="update_properties('thickness')"><br>
 						</div>
 						<div style="height: 64px;" style="vertical-align: center;">
 							<div class="circle_sample" id="thickness_sample_circular" style="position: relative; top: 32px; left: 64px;"></div>
@@ -81,8 +89,7 @@
 						<div style="height: 48px; display: flex;  justify-content: center;  flex-direction: column;">
 							Tolerance:
 							<br>
-							<input type="range" id="tolerance" min="0" max="1" step="0.01" value="0.5" style="width: 172px; margin:3px" onclick="update_properties('tolerance')">
-							<br>
+							<input type="range" id="tolerance" min="0" max="1" step="0.01" value="0.5" style="width: 172px; margin:3px" onclick="update_properties('tolerance')"><br>
 						</div>
 						<div style="height: 48px;" style="display: flex; justify-content: center;">
 							<div id="tolerance_sample_dark" style="width: 32px; height: 32px; background: #404040; margin-left: 32px;">
@@ -179,6 +186,17 @@ const buffer = document.createElement('canvas');
 buffer.width = width;
 buffer.height = height;
 
+function savefile(){
+	var canvas = document.getElementById("cl");
+    var image = canvas.toDataURL("image/png");
+    var link = document.createElement('a');
+	link.href = image;
+	link.download = 'Masterpiece.png';
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+	//window.location.href=image; 
+}
 
 function reorder_plates(){
 	const ll = document.getElementById("layerslist");
@@ -292,11 +310,31 @@ function calculate_color(pix1, pix2, alpha1, alpha2, ratio, mode, rand){
 }
 
 
-function update_color(){
-	const red = document.getElementById('red').value;
-	const green = document.getElementById('green').value;
-	const blue = document.getElementById('blue').value;
-	const alpha = document.getElementById('alpha').value;
+function update_color(source){
+	let red;
+	let green;
+	let blue;
+	let alpha;
+	if(source=='bar'){
+		red = document.getElementById('red').value;
+		green = document.getElementById('green').value;
+		blue = document.getElementById('blue').value;
+		alpha = document.getElementById('alpha').value;
+		document.getElementById('rednum').value = red;
+		document.getElementById('greennum').value = green;
+		document.getElementById('bluenum').value = blue;
+		document.getElementById('alphanum').value = Math.round(alpha);
+	}
+	else{
+		red = document.getElementById('rednum').value;
+		green = document.getElementById('greennum').value;
+		blue = document.getElementById('bluenum').value;
+		alpha = document.getElementById('alphanum').value;
+		document.getElementById('red').value = red;
+		document.getElementById('green').value = green;
+		document.getElementById('blue').value = blue;
+		document.getElementById('alpha').value = alpha;
+	}
 	curcol = new Color(red,green,blue,alpha);
 	document.getElementById('color_sample').style.background = curcol.toRGBA(); 
 	document.getElementById('red').style.background = "linear-gradient(to right, rgba(0,"+green+","+blue+",1), rgba(255,"+green+","+blue+",1))";
@@ -445,67 +483,6 @@ function set_tool(tl){
 			tools[i].classList.remove("selected");
 		}
 	}
-}
-
-function set_point()
-{
-	if(k%2==1)
-		return;
-	var canvas = document.getElementById('cl');
-	var ctx = canvas.getContext('2d');
-	var rect = canvas.getBoundingClientRect();
-	if(k==4){
-		k = 0;
-		p = [];
-	}
-	var mousex = event.clientX - rect.left;
-	var mousey = event.clientY - rect.top;
-	p[k] = {x: mousex, y: mousey};
-	k++;
-	ctx.fillStyle = "rgb(0,0,0)";
-	ctx.fillRect(mousex - 8, mousey - 8, 16, 16);
-	ctx.fillStyle = "rgb(256,48,48)";
-	ctx.fillRect(mousex - 6, mousey - 6, 12, 12);
-}
-
-function set_pivot() {
-	if((k%2==0)||k>=4)
-		return;
-	var canvas = document.getElementById('cl');
-	var ctx = canvas.getContext('2d');
-	var rect = canvas.getBoundingClientRect();
-	var mousex = event.clientX - rect.left;
-	var mousey = event.clientY - rect.top;
-	p[k] = {x: mousex, y: mousey};
-	ctx.beginPath();    
-	ctx.moveTo(p[k-1].x, p[k-1].y);   
-	ctx.lineTo(mousex, mousey); 
-	ctx.stroke(); 
-	ctx.fillStyle = "rgb(0,0,0)";
-	ctx.fillRect(mousex - 8, mousey - 8, 16, 16);
-	ctx.fillStyle = "rgb(48,256,48)";
-	ctx.fillRect(mousex - 6, mousey - 6, 12, 12);
-	k++;
-	if(k==4){
-		draw_bezier();
-	}
-}
-
-function draw_bezier(){
-	var canvas = document.getElementById('cl');
-	var ctx = canvas.getContext('2d');
-	ctx.beginPath();    
-	ctx.moveTo(p[0].x, p[0].y);   
-	var r0 = p[0];
-	var r1;
-	ctx.fillStyle = "rgb(0,0,0)";
-	for(var i = 1; i<=number; i++){
-		var r1 = calc_for_point(i);
-		ctx.lineTo(r1.x, r1.y); 
-		ctx.fillRect(r1.x-2,r1.y-2,4,4);
-		r0 = r1;
-	}
-	ctx.stroke(); 
 }
 
 function update_properties(prop){

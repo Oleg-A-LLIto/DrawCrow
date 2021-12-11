@@ -12,6 +12,12 @@ body{
 	background-color: #222831;
 	color: #FFFFFF;
 	font-family: 'Gotham Pro Regular', sans-serif;
+  -webkit-touch-callout: none;
+    -webkit-user-select: none; 
+     -khtml-user-select: none; 
+       -moz-user-select: none; 
+        -ms-user-select: none;
+            user-select: none; 
 }
 
 canvas{
@@ -61,7 +67,7 @@ canvas{
 
 .layer_plate{
 	box-sizing: border-box;
-	height: 56px;
+	height: 46px;
 	background-color: #393E46;
 	display: flex;
 	margin-bottom: 2px;
@@ -161,6 +167,14 @@ input[type=range]::-moz-range-thumb {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.circle_sample {
+  height: 2px;
+  width: 2px;
+  background-color: #FFD369;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 .check_container input {

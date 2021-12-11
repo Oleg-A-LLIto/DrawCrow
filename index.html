@@ -66,19 +66,30 @@
 			</div>
 			<div class="right_sidebar" style="height: 228px;">
 				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:left;">
-					<div id="thickness_settings">
-						Thickness:
-						<br>
-						<input type="range" id="thickness" min="2" max="64" step="1" value="2" style="width: 172px; margin:0px" onclick="update_properties('thickness')">
-						<br>
-						<br>
+					<div id="thickness_settings" style="display: flex; ">
+						<div style="height: 64px; display: flex;  justify-content: center;  flex-direction: column;">
+							Thickness:
+							<br>
+							<input type="range" id="thickness" min="2" max="64" step="1" value="2" style="width: 172px; margin:3px" onclick="update_properties('thickness')">
+							<br>
+						</div>
+						<div style="height: 64px;" style="vertical-align: center;">
+							<div class="circle_sample" id="thickness_sample_circular" style="position: relative; top: 32px; left: 64px;"></div>
+						</div>
 					</div>
-					<div id="tolerance_settings">
-						Tolerance:
-						<br>
-						<input type="range" id="tolerance" min="0" max="1" step="0.01" value="0.5" style="width: 172px; margin:0px" onclick="update_properties('tolerance')">
-						<br>
-						<br>
+					<br>
+					<div id="tolerance_settings" style="display: flex; ">
+						<div style="height: 48px; display: flex;  justify-content: center;  flex-direction: column;">
+							Tolerance:
+							<br>
+							<input type="range" id="tolerance" min="0" max="1" step="0.01" value="0.5" style="width: 172px; margin:3px" onclick="update_properties('tolerance')">
+							<br>
+						</div>
+						<div style="height: 48px;" style="display: flex; justify-content: center;">
+							<div id="tolerance_sample_dark" style="width: 32px; height: 32px; background: #404040; margin-left: 32px;">
+								<div id="tolerance_sample_bright" style="width: 32px; height: 32px; background: #C0C0C0; position: relative; left: 32px;"></div>
+							</div>
+						</div>
 					</div>
 					<label class="check_container">
 						This one does nothing so far
@@ -155,7 +166,6 @@ let curcol = new Color(0,0,0,255);
 let seccol = "rgba(255,255,255,255)"
 let layers = [];
 let tol = 0.75;
-
 let p = [];
 let k = 0;
 let thickness = 2;
@@ -164,8 +174,11 @@ let activelayer = 0;
 let newl = new Layer(0);
 layers.push(newl);
 let action_ongoing = false;
-
 let Random = new RNG();
+const buffer = document.createElement('canvas');
+buffer.width = width;
+buffer.height = height;
+
 
 function reorder_plates(){
 	const ll = document.getElementById("layerslist");
@@ -224,6 +237,9 @@ function flatten_image(){
 	const canvas = document.getElementById('cl');
 	const ctx = canvas.getContext('2d');
 	ctx.clearRect(0, 0, width, height);
+	if(layers.length == 0){
+		return;
+	}
 	let imgData = ctx.getImageData(0, 0, width, height);
 	let data = imgData.data;
 	for(i = 0; i < layers.length; i++){
@@ -234,6 +250,7 @@ function flatten_image(){
 		//imgData.data = data;
 	}
 	ctx.putImageData(imgData, 0, 0);
+	Layer.replace_layer(buffer, canvas);
 }
 
 function flatten_down(){
@@ -344,38 +361,32 @@ function cancel(){
 
 function action_process(){
 	if (action_ongoing){
+		const canvas = document.getElementById('cl');
+		var ctx = canvas.getContext('2d');
 		switch (tool){
 			case "brush":
-				var canvas = document.getElementById('cl');
-				var ctx = canvas.getContext('2d');
 				var rect = canvas.getBoundingClientRect();
 				layers[activelayer].draw_pen(event.clientX - rect.left,event.clientY - rect.top);
 				if(!layers[activelayer].simplified_preview)
 					flatten_image();
 				break;
 			case "ruler":
-				var canvas = document.getElementById('cl');
-				var ctx = canvas.getContext('2d');
+				Layer.replace_layer(canvas, buffer);
 				var rect = canvas.getBoundingClientRect();
 				layers[activelayer].ruler_render(event.clientX - rect.left,event.clientY - rect.top);
 				break;
 			case "eraser":
-				var canvas = document.getElementById('cl');
-				var ctx = canvas.getContext('2d');
 				var rect = canvas.getBoundingClientRect();
 				layers[activelayer].erase(event.clientX - rect.left,event.clientY - rect.top);
 				flatten_image();
 				break;
 			case "dropper":
-				var canvas = document.getElementById('cl');
-				var ctx = canvas.getContext('2d');
 				var rect = canvas.getBoundingClientRect();
 				layers[activelayer].sample(event.clientX - rect.left,event.clientY - rect.top);
 				break;
 		}
 	}
 }
-
 
 function action_end(){
 	if (action_ongoing){
@@ -501,9 +512,15 @@ function update_properties(prop){
 	switch(prop){
 		case('thickness'):
 			thickness = document.getElementById('thickness').value;
+			document.getElementById('thickness_sample_circular').style.height = thickness;
+			document.getElementById('thickness_sample_circular').style.width = thickness;
+			document.getElementById('thickness_sample_circular').style.top = 32 - thickness/2;
+			document.getElementById('thickness_sample_circular').style.left = 64 - thickness/2;
 			break;
 		case('tolerance'):
 			tol = document.getElementById('tolerance').value;
+			document.getElementById('tolerance_sample_dark').style.background = "rgba("+(128 - 128 * tol)+","+(128 - 128 * tol)+","+(128 - 128 * tol)+",1)";
+			document.getElementById('tolerance_sample_bright').style.background = "rgba("+ (128 + 128 * tol) +","+ (128 + 128 * tol) +","+ (128 + 128 * tol) +",1)";
 			break;
 	}
 }

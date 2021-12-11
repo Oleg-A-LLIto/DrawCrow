@@ -66,7 +66,7 @@
 			</div>
 			<div class="right_sidebar" style="height: 228px;">
 				<div style="margin-left: auto; margin-right: auto; padding: 20px; text-align:left;">
-					<div id="thickness_settings" style="display: flex; ">
+					<div id="thickness_settings" style="display: flex; margin-bottom: 16px;">
 						<div style="height: 64px; display: flex;  justify-content: center;  flex-direction: column;">
 							Thickness:
 							<br>
@@ -77,8 +77,7 @@
 							<div class="circle_sample" id="thickness_sample_circular" style="position: relative; top: 32px; left: 64px;"></div>
 						</div>
 					</div>
-					<br>
-					<div id="tolerance_settings" style="display: flex; ">
+					<div id="tolerance_settings" style="display: flex; margin-bottom: 16px;">
 						<div style="height: 48px; display: flex;  justify-content: center;  flex-direction: column;">
 							Tolerance:
 							<br>
@@ -92,8 +91,8 @@
 						</div>
 					</div>
 					<label class="check_container">
-						This one does nothing so far
-						<input type="checkbox" id="asf" checked="true" onclick="">
+						Realtime accurate brush (slow)
+						<input type="checkbox" id="realtime_check" onclick="update_properties('realtime')">
 						<span class="checkmark"></span>
 					</label>
 				</div>
@@ -172,6 +171,7 @@ let thickness = 2;
 let layer_increment = 1;
 let activelayer = 0;
 let newl = new Layer(0);
+let simplified_preview = true;
 layers.push(newl);
 let action_ongoing = false;
 let Random = new RNG();
@@ -342,7 +342,7 @@ function action_start(){
 			var ctx = canvas.getContext('2d');
 			var rect = canvas.getBoundingClientRect();
 			layers[activelayer].draw_pen(event.clientX - rect.left,event.clientY - rect.top);
-			if(!layers[activelayer].simplified_preview)
+			if(!simplified_preview)
 				flatten_image();
 			break;
 		case "dropper":
@@ -367,7 +367,7 @@ function action_process(){
 			case "brush":
 				var rect = canvas.getBoundingClientRect();
 				layers[activelayer].draw_pen(event.clientX - rect.left,event.clientY - rect.top);
-				if(!layers[activelayer].simplified_preview)
+				if(!simplified_preview)
 					flatten_image();
 				break;
 			case "ruler":
@@ -521,6 +521,9 @@ function update_properties(prop){
 			tol = document.getElementById('tolerance').value;
 			document.getElementById('tolerance_sample_dark').style.background = "rgba("+(128 - 128 * tol)+","+(128 - 128 * tol)+","+(128 - 128 * tol)+",1)";
 			document.getElementById('tolerance_sample_bright').style.background = "rgba("+ (128 + 128 * tol) +","+ (128 + 128 * tol) +","+ (128 + 128 * tol) +",1)";
+			break;
+		case('realtime'):
+			simplified_preview = !(document.getElementById('realtime_check').checked);
 			break;
 	}
 }

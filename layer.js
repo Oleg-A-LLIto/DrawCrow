@@ -40,7 +40,6 @@ class Layer {
 		this.w = width;
 		this.h = height;
 		this.prevpoint = {x: -1, y: -1};
-		this.simplified_preview = true;
 		this.canvas = document.createElement('canvas');
 		this.canvas.width = this.w;
 		this.canvas.height = this.h;
@@ -75,7 +74,7 @@ class Layer {
 	draw_pen(x,y){
 		let ctx = this.canvas.getContext('2d');
 		this.draw_pen_on_context(ctx,x,y);
-		if(this.simplified_preview){
+		if(simplified_preview){
 			ctx = document.getElementById('cl').getContext('2d');
 			this.draw_pen_on_context(ctx,x,y);
 		}

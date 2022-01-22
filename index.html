@@ -1,43 +1,60 @@
 <html>
-<link rel="stylesheet" type="text/css" href="styles.css">
-<link rel="icon" href="favicon.ico">
-<title>DrawCrow</title>
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+	<title>DrawCrow</title>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<link rel="icon" href="favicon.ico">
+</head>
 <body>
+<div class="mute">
+	<div class="popup">
+		New art
+		<br>
+		Size: <input type="number" value="960"> x <input type="number" value="720">
+		<br>
+		Name: <input type="textfield" value="My masterpiece" style="width: 192px">
+		<div class="button">
+			Apply
+		</div>
+	</div>
+</div>
 <div class="logo"><img src="logo.png" style="margin-top: -4px; padding-right: 10px;">DrawCrow</div>
 <div style="display: flex; text-align:center;">
 	<div style="margin-left: auto; margin-right: auto; display: flex;">
 		<div style="display: flex; flex-direction: column;">
-			<div class="tool_button left_sidebar_button selected button" id="button_brush" onclick="set_tool('brush')">
-				<img style="align-self: center;" src="icons/paint-brush.png">
+			<div class="toolButton leftSidebarButton selected button" id="buttonBrush">
+				<img style="align-self: center;" src="ui/paint-brush.png">
 			</div>
-			<div class="tool_button left_sidebar_button button" id="button_fill" onclick="set_tool('fill')">
-				<img style="align-self: center;" src="icons/color-fill-tool.png">
+			<div class="toolButton leftSidebarButton button" id="buttonFill">
+				<img style="align-self: center;" src="ui/color-fill-tool.png">
 			</div>
-			<div class="tool_button left_sidebar_button button" id="button_ruler" onclick="set_tool('ruler')">
-				<img style="align-self: center;" src="icons/ruler-measurement.png">
+			<div class="toolButton leftSidebarButton button" id="buttonRuler">
+				<img style="align-self: center;" src="ui/ruler-measurement.png">
 			</div>
-			<div class="tool_button left_sidebar_button button" id="button_eraser" onclick="set_tool('eraser')">
-				<img style="align-self: center;" src="icons/eraser.png">
+			<div class="toolButton leftSidebarButton button" id="buttonEraser">
+				<img style="align-self: center;" src="ui/eraser.png">
 			</div>
-			<div class="tool_button left_sidebar_button button" id="button_dropper" onclick="set_tool('dropper')">
-				<img style="align-self: center;" src="icons/dropper.png">
+			<div class="toolButton leftSidebarButton button" id="buttonDropper">
+				<img style="align-self: center;" src="ui/dropper.png">
 			</div>
-			<div class="left_sidebar_button button" onclick="cancel()">
-				<img style="align-self: center;" src="icons/reply-arrow.png">
+			<div class="leftSidebarButton button">
+				<img style="align-self: center;" src="ui/reply-arrow.png">
 			</div>
-			<div class="left_sidebar_button button" onclick="savefile()">
-				<img style="align-self: center;" src="icons/save.png">
+			<div class="leftSidebarButton button">
+				<img style="align-self: center;" src="ui/save.png">
 			</div>
 		</div>
-		<div style="width: 962px; height: 722px; overflow-y: auto; overflow-x: auto;">
-			<canvas id="cl" class="ccl" width=960px height=720px onmousedown="action_start()" onmouseup="action_end()" onmouseleave="action_interrupted()" onmousemove="action_process()" style="border-style: solid; border-width: 1px; cursor: crosshair;" ></canvas>
+		<div id="canvasFrame" style="width: 960px; height: 720px; border-width: 2px; border-style: solid;">
+			<canvas width=960px height=720px style="cursor: crosshair; transform-origin: 50% 0%; position: relative; left: 0px; top: 0px;" ></canvas>
 		</div>
 		<div style="display: flex; flex-direction: column;">
-			<div class="right_sidebar">
+			<div class="rightSidebar">
 				<div style="margin-left: auto; margin-right: auto; padding: 16px; text-align:right; display: flex; justify-content: space-around;">
 					<div style="display: block; height: 128px;">
 						<div style="width: 128px; height: 128px;">
-							<div id="color_sample" style="width: 128px; height: 128px; background-color: #000000; position:  relative; z-index:3;">
+							<div id="colorSample" style="width: 128px; height: 128px; background-color: #000000; position:  relative; z-index:3;">
 							</div>	
 							<div src="checkers.png" style="width:  128px; height: 128px; position:  relative; top: -128px; z-index:2; background-image: url('checkers.png'); background-repeat: no-repeat;">
 							</div>
@@ -48,109 +65,86 @@
 					</div>
 					<div style="display: flex; flex-direction: column; text-align: left; justify-content: space-around;">
 						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
-							<input type="range" class="color_picker" id="red" style="width:128px; background: linear-gradient(to right, #000000, #FF0000);" min="0" max="255" value="0" onchange="update_color('bar')">
+							<input type="range" class="colorPicker" name="redBar" style="width:128px; background: linear-gradient(to right, #000000, #FF0000);" min="0" max="255" value="0">
 						</div>
 						<br>
 						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
-							<input type="range" class="color_picker" id="green" style="width:128px; background: linear-gradient(to right, #000000, #00FF00);" min="0" max="255" value="0" onchange="update_color('bar')">
+							<input type="range" class="colorPicker" name="greenBar" style="width:128px; background: linear-gradient(to right, #000000, #00FF00);" min="0" max="255" value="0">
 						</div>
 						<br>
 						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
-							<input type="range" class="color_picker" id="blue" style="width:128px; background: linear-gradient(to right, #000000, #0000FF);" min="0" max="255" value="0" onchange="update_color('bar')">
+							<input type="range" class="colorPicker" name="blueBar" style="width:128px; background: linear-gradient(to right, #000000, #0000FF);" min="0" max="255" value="0">
 						</div>
 						<br>
 						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
-							<input type="range" class="color_picker" id="alpha" style="width:128px; background: linear-gradient(to right, #00000000, #000000FF);" min="0" max="255" value="255" step="0.01" onchange="update_color('bar')">
+							<input type="range" class="colorPicker" name="alphaBar" style="width:128px; background: linear-gradient(to right, #00000000, #000000FF);" min="0" max="255" value="255" step="0.01">
 						</div>
 					</div>
 				</div>
 				<div style="justify-content: space-around; margin-bottom: 16px;">
-					R: <input type="number" id="rednum" min="0" max="255" value="0" onchange="update_color('num')">
-					G: <input type="number" id="greennum" min="0" max="255" value="0" onchange="update_color('num')">
-					B: <input type="number" id="bluenum" min="0" max="255" value="0" onchange="update_color('num')">
-					A: <input type="number" id="alphanum" min="0" max="255" value="255" onchange="update_color('num')">
+					R: <input type="number" name="redNumber" min="0" max="255" value="0">
+					G: <input type="number" name="greenNumber" min="0" max="255" value="0">
+					B: <input type="number" name="blueNumber" min="0" max="255" value="0">
+					A: <input type="number" name="alphaNumber" min="0" max="255" value="255">
 				</div>
 				<clear>
 				</clear>
 			</div>
-			<div class="right_sidebar" style="height: 198px;">
+			<div class="rightSidebar" style="height: 198px;">
 				<div style="margin-left: auto; margin-right: auto; padding: 20px; padding-top: 12px; text-align:left;">
-					<div id="thickness_settings" style="display: flex; margin-bottom: 16px;">
+					<div style="display: flex; margin-bottom: 16px;">
 						<div style="height: 64px; display: flex;  justify-content: center;  flex-direction: column;">
 							Thickness:
 							<br>
-							<input type="range" id="thickness" min="2" max="64" step="1" value="2" style="width: 172px; margin:3px" onclick="update_properties('thickness')"><br>
+							<input type="range" name="thicknessSetting" min="2" max="64" step="1" value="2" style="width: 172px; margin:3px"><br>
 						</div>
 						<div style="height: 64px;" style="vertical-align: center;">
-							<div class="circle_sample" id="thickness_sample_circular" style="position: relative; top: 32px; left: 64px;"></div>
+							<div class="circleSample" id="thicknessSampleCircular" style="position: relative; top: 32px; left: 64px;"></div>
 						</div>
 					</div>
-					<div id="tolerance_settings" style="display: flex; margin-bottom: 16px;">
+					<div style="display: flex; margin-bottom: 16px;">
 						<div style="height: 48px; display: flex;  justify-content: center;  flex-direction: column;">
 							Tolerance:
 							<br>
-							<input type="range" id="tolerance" min="0" max="1" step="0.01" value="0.5" style="width: 172px; margin:3px" onclick="update_properties('tolerance')"><br>
+							<input type="range" name="toleranceSetting" min="0" max="1" step="0.01" value="0.5" style="width: 172px; margin:3px"><br>
 						</div>
 						<div style="height: 48px;" style="display: flex; justify-content: center;">
-							<div id="tolerance_sample_dark" style="width: 32px; height: 32px; background: #404040; margin-left: 32px;">
-								<div id="tolerance_sample_bright" style="width: 32px; height: 32px; background: #C0C0C0; position: relative; left: 32px;"></div>
+							<div id="toleranceSampleDark" style="width: 32px; height: 32px; background: #404040; margin-left: 32px;">
+								<div id="toleranceSampleBright" style="width: 32px; height: 32px; background: #C0C0C0; position: relative; left: 32px;"></div>
 							</div>
 						</div>
 					</div>
-					<label class="check_container">
-						Realtime accurate brush (slow)
-						<input type="checkbox" id="realtime_check" onclick="update_properties('realtime')">
+					<label class="checkContainer">
+						Realtime accurate Brush (slow)
+						<input type="checkbox" id="realtimeCheck">
 						<span class="checkmark"></span>
 					</label>
 				</div>
 			</div>
-			<div class="right_sidebar">
+			<div class="rightSidebar">
 				<div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
 					<div>
-						<div class="layers_button button" onclick="new_layer()">
-							<img src="icons/plus-square-line.png">
+						<div class="layersButton button">
+							<img src="ui/plus-square-line.png">
 						</div>
 					</div>
 					<div>
-						<div class="layers_button button unavailable" id="button_flatten" onclick="flatten_down()">
-							<img src="icons/flatten.png">
+						<div class="layersButton button unavailable">
+							<img src="ui/flatten.png">
 						</div>
 					</div>
 					<div>
-						<div class="layers_button button unavailable" id="button_layer_down" onclick="swap_down()">
-							<img src="icons/arrow.png" style="-webkit-transform: scaleY(-1); transform: scaleY(-1);">
+						<div class="layersButton button unavailable">
+							<img src="ui/arrow.png" style="-webkit-transform: scaleY(-1); transform: scaleY(-1);">
 						</div>
 					</div>
 					<div>
-						<div class="layers_button button unavailable" id="button_layer_up" onclick="swap_up()">
-							<img src="icons/arrow.png">
+						<div class="layersButton button unavailable">
+							<img src="ui/arrow.png">
 						</div>
 					</div>
 				</div>
-				<div id="layerslist" class="layers_scroll" style="display: flex; flex-direction: column;">
-					<div class="layer_plate selected" id="plate_0" onclick="switch_to_layer(0)">
-						<canvas class="thumbnail" id="thumb_0"></canvas>
-						<div style="width:130px;">
-							Background
-							<input type="range" id="opacity_0" style="width:128px;" min="0" max="100" value="100" checked="true" onchange="update_layer_properties('opacity',0)">
-						</div>
-						<div style="width:72px;">
-							<div style="display:flex; justify-content: space-around;">
-								<label class="check_container layer_setting">
-									<img src="icons/view.png">
-									<input type="checkbox" id="visible_0" checked="true" onclick="update_layer_properties('visible',0)">
-									<span class="checkmark"></span>
-								</label>
-								<img class="button layer_setting" style="align-self: center;" src="icons/delete.png" onclick="delete_layer(idToNum(0))">
-							</div>
-							<select id="mode_0"  onchange="update_layer_properties('mode',0)">
-							  <option value="normal" selected>Normal</option>
-							  <option value="add">Add</option>
-							  <option value="dissolve">Dissolve</option>
-							  <option value="negate">Negate</option>
-							</select>
-						</div>
-					</div>
+				<div id="layerslist" class="layersScroll" style="display: flex; flex-direction: column;">
 				</div>
 			</div>
 		</div>
@@ -159,424 +153,6 @@
 </body>
 </html>
 
-<script src="layer.js"></script>
-<script src="rng.js"></script>
+<script type="module" src="scripts/index.js">
 
-<script>
-const width = 960;
-const height = 720;
-const twidth = 48;
-const theight = 36;
-let tool = "brush";
-let curcol = new Color(0,0,0,255);
-let seccol = "rgba(255,255,255,255)"
-let layers = [];
-let tol = 0.75;
-let p = [];
-let k = 0;
-let thickness = 2;
-let layer_increment = 1;
-let activelayer = 0;
-let newl = new Layer(0);
-let simplified_preview = true;
-layers.push(newl);
-let action_ongoing = false;
-let Random = new RNG();
-const buffer = document.createElement('canvas');
-buffer.width = width;
-buffer.height = height;
-
-function savefile(){
-	var canvas = document.getElementById("cl");
-    var image = canvas.toDataURL("image/png");
-    var link = document.createElement('a');
-	link.href = image;
-	link.download = 'Masterpiece.png';
-	document.body.appendChild(link);
-	link.click();
-	document.body.removeChild(link);
-	//window.location.href=image; 
-}
-
-function reorder_plates(){
-	const ll = document.getElementById("layerslist");
-	const plates = document.getElementsByClassName("layer_plate");
-	for(let i = layers.length-1; i >= 0; i--){
-		for(let j = 0; j < plates.length; j++){
-		    if(plates[j].id == ("plate_"+layers[i].id)){
-				ll.append(plates[j]);
-				break;
-			}
-		}
-	}
-}
-
-function switch_to_layer(layer_id){
-	if(event.target.classList.contains("layer_setting")){
-		return;
-	}
-	activelayer = idToNum(layer_id);
-	plates = document.getElementsByClassName("layer_plate");
-	for(let i = 0; i<plates.length; i++){
-	    if(plates[i].id == ("plate_"+layers[activelayer].id)){
-			plates[i].classList.add("selected");
-		}
-		else{
-			plates[i].classList.remove("selected");
-		}
-	}
-	layers[activelayer].update_color();
-	update_layer_buttons();
-}
-
-function idToNum(layer_id){
-	for(let i = 0; i < layers.length; i++){
-		if (layers[i].id == layer_id){
-			return i;
-		}
-	}
-}
-
-function new_layer(){
-	const layer_id = layer_increment++;
-	let newplate = document.createElement("div");
-	newplate.setAttribute("onclick","switch_to_layer("+layer_id+");");
-	newplate.classList.add("layer_plate");
-	newplate.setAttribute("id","plate_"+layer_id);
-	newplate.innerHTML += '<canvas class="thumbnail" id="thumb_'+layer_id+'"></canvas><div style="width:130px;">	Layer'+layer_id+'	<input type="range" id="opacity_'+layer_id+'" style="width:128px;" min="0" max="100" value="100" checked="true" onchange="update_layer_properties(\'opacity\','+layer_id+')"></div><div style="width:72px;">	<div style="display:flex; justify-content: space-around;">		<label class="check_container">			<img src="icons/view.png">			<input type="checkbox" id="visible_'+layer_id+'" checked="true" onclick="update_layer_properties(\'visible\','+layer_id+')">			<span class="checkmark"></span>		</label>		<img class="button layer_setting" style="align-self: center;" src="icons/delete.png" onclick="delete_layer(idToNum('+layer_id+'))">	</div>	<select id="mode_'+layer_id+'" onchange="update_layer_properties(\'mode\','+layer_id+')">	  <option value="normal" selected>Normal</option>	  <option value="add">Add</option>	  <option value="dissolve">Dissolve</option>	  <option value="negate">Negate</option>	</select></div>';
-	const ll = document.getElementById("layerslist");
-	//ll.insertBefore(document.createElement("br"), ll.firstChild);
-	ll.insertBefore(newplate, ll.firstChild);
-	layers.push(new Layer(layer_id));
-	switch_to_layer(layer_id);
-}
-
-function flatten_image(){
-	const canvas = document.getElementById('cl');
-	const ctx = canvas.getContext('2d');
-	ctx.clearRect(0, 0, width, height);
-	if(layers.length == 0){
-		return;
-	}
-	let imgData = ctx.getImageData(0, 0, width, height);
-	let data = imgData.data;
-	for(i = 0; i < layers.length; i++){
-		if(layers[i].visible==false)
-			continue;
-		data2 = layers[i].getdata().data;
-		data = merge(data, data2, layers[i].opacity, layers[i].mode);
-		//imgData.data = data;
-	}
-	ctx.putImageData(imgData, 0, 0);
-	Layer.replace_layer(buffer, canvas);
-}
-
-function flatten_down(){
-	if(activelayer>0){
-		layers[activelayer].merge_with(layers[activelayer-1]);
-		delete_layer(activelayer);
-		layers[activelayer].update_thumbnail();
-		update_layer_buttons();
-	}
-}
-
-function merge(data, data2, op2, mode){
-	Random.set(0);
-	for (var j = 0; j < data.length; j += 4) {
-		const rand = Random.get();
-		const data2op = data2[j+3] * (op2/100);
-		let culling = 255 - (data2op + data[j+3]);
-		if (culling > 0) culling = 0;
-		const ratio = data2op/(data2op + data[j+3] + culling);
-		data[j] = calculate_color(data[j], data2[j], data[j+3], data2op, ratio, mode, rand); // red
-		data[j+1] = calculate_color(data[j+1], data2[j+1], data[j+3], data2op, ratio, mode, rand); //green
-		data[j+2] =calculate_color(data[j+2], data2[j+2], data[j+3], data2op, ratio, mode, rand);  //blue
-		data[j+3] = Math.min(data2op + data[j+3], 255);
-	}
-	return data;
-}
-
-function calculate_color(pix1, pix2, alpha1, alpha2, ratio, mode, rand){
-	switch(mode){
-		case('normal'):
-			return pix2*ratio + pix1*(1-ratio);
-		case('negate'):
-			return pix1 * (alpha1/255) - pix2 * (alpha2/255);
-		case('dissolve'):
-			return (rand < ratio) ? pix2 : pix1;
-		case('add'):
-			return pix1 * (alpha1/255) + pix2 * (alpha2/255);
-	}
-}
-
-
-function update_color(source){
-	let red;
-	let green;
-	let blue;
-	let alpha;
-	if(source=='bar'){
-		red = document.getElementById('red').value;
-		green = document.getElementById('green').value;
-		blue = document.getElementById('blue').value;
-		alpha = document.getElementById('alpha').value;
-		document.getElementById('rednum').value = red;
-		document.getElementById('greennum').value = green;
-		document.getElementById('bluenum').value = blue;
-		document.getElementById('alphanum').value = Math.round(alpha);
-	}
-	else{
-		red = document.getElementById('rednum').value;
-		green = document.getElementById('greennum').value;
-		blue = document.getElementById('bluenum').value;
-		alpha = document.getElementById('alphanum').value;
-		document.getElementById('red').value = red;
-		document.getElementById('green').value = green;
-		document.getElementById('blue').value = blue;
-		document.getElementById('alpha').value = alpha;
-	}
-	curcol = new Color(red,green,blue,alpha);
-	document.getElementById('color_sample').style.background = curcol.toRGBA(); 
-	document.getElementById('red').style.background = "linear-gradient(to right, rgba(0,"+green+","+blue+",1), rgba(255,"+green+","+blue+",1))";
-	document.getElementById('green').style.background = "linear-gradient(to right, rgba("+red+",0,"+blue+",1), rgba("+red+",255,"+blue+",1))";
-	document.getElementById('blue').style.background = "linear-gradient(to right, rgba("+red+","+green+",0,1), rgba("+red+","+green+",255,1))";
-	document.getElementById('alpha').style.background = "linear-gradient(to right, rgba("+red+","+green+","+blue+",0), rgba("+red+","+green+","+blue+",1))";
-	layers[activelayer].update_color();
-	const canvas = document.getElementById('cl');
-	const ctx = canvas.getContext('2d');
-	ctx.strokeStyle = curcol.toRGBA();
-	ctx.fillStyle = curcol.toRGBA();
-}
-
-/*
-function update_color(){
-	alert(curcol);
-	curcol = document.getElementById('col1').value + "FF";
-	alert(curcol);
-	seccol = document.getElementById('col2').value;
-	layers[activelayer].update_color();
-}
-*/
-
-function action_start(){
-	action_ongoing = true;
-	layers[activelayer].save();
-	switch (tool){
-		case "ruler":
-			var canvas = document.getElementById('cl');
-			var ctx = canvas.getContext('2d');
-			var rect = canvas.getBoundingClientRect();
-			layers[activelayer].ruler_start(event.clientX - rect.left,event.clientY - rect.top);
-			break;
-		case "eraser":
-			var canvas = document.getElementById('cl');
-			var ctx = canvas.getContext('2d');
-			var rect = canvas.getBoundingClientRect();
-			layers[activelayer].erase(event.clientX - rect.left,event.clientY - rect.top);
-			flatten_image();
-			break;
-		case "brush":
-			var canvas = document.getElementById('cl');
-			var ctx = canvas.getContext('2d');
-			var rect = canvas.getBoundingClientRect();
-			layers[activelayer].draw_pen(event.clientX - rect.left,event.clientY - rect.top);
-			if(!simplified_preview)
-				flatten_image();
-			break;
-		case "dropper":
-			var canvas = document.getElementById('cl');
-			var ctx = canvas.getContext('2d');
-			var rect = canvas.getBoundingClientRect();
-			layers[activelayer].sample(event.clientX - rect.left,event.clientY - rect.top);
-			break;
-	}
-}
-
-function cancel(){
-	layers[activelayer].load();
-	flatten_image();
-}
-
-function action_process(){
-	if (action_ongoing){
-		const canvas = document.getElementById('cl');
-		var ctx = canvas.getContext('2d');
-		switch (tool){
-			case "brush":
-				var rect = canvas.getBoundingClientRect();
-				layers[activelayer].draw_pen(event.clientX - rect.left,event.clientY - rect.top);
-				if(!simplified_preview)
-					flatten_image();
-				break;
-			case "ruler":
-				Layer.replace_layer(canvas, buffer);
-				var rect = canvas.getBoundingClientRect();
-				layers[activelayer].ruler_render(event.clientX - rect.left,event.clientY - rect.top);
-				break;
-			case "eraser":
-				var rect = canvas.getBoundingClientRect();
-				layers[activelayer].erase(event.clientX - rect.left,event.clientY - rect.top);
-				flatten_image();
-				break;
-			case "dropper":
-				var rect = canvas.getBoundingClientRect();
-				layers[activelayer].sample(event.clientX - rect.left,event.clientY - rect.top);
-				break;
-		}
-	}
-}
-
-function action_end(){
-	if (action_ongoing){
-		action_ongoing = false;
-		switch (tool){
-			case "ruler":
-				var canvas = document.getElementById('cl');
-				var ctx = canvas.getContext('2d');
-				var rect = canvas.getBoundingClientRect();
-				layers[activelayer].ruler_end(event.clientX - rect.left,event.clientY - rect.top);
-				//ctx.putImageData(layers[activelayer].getdata(), 0, 0);
-				flatten_image();
-				break;
-			case "brush":
-				layers[activelayer].clear_pen();
-				flatten_image();
-				break;
-			case "fill":
-				var canvas = document.getElementById('cl');
-				var ctx = canvas.getContext('2d');
-				var rect = canvas.getBoundingClientRect();
-				layers[activelayer].fill(event.clientX - rect.left,event.clientY - rect.top);
-				//ctx.putImageData(layers[activelayer].getdata(), 0, 0);
-				flatten_image();
-				break;
-			case "dropper":
-				var canvas = document.getElementById('cl');
-				var ctx = canvas.getContext('2d');
-				var rect = canvas.getBoundingClientRect();
-				layers[activelayer].sample(event.clientX - rect.left,event.clientY - rect.top);
-				break;
-		}
-		layers[activelayer].update_thumbnail()
-	}
-}
-
-function action_interrupted(){
-	action_ongoing = false;
-	switch (tool){
-		case "ruler":
-		case "brush":
-			layers[activelayer].clear_pen();
-			break;
-	}
-	flatten_image();
-}
-
-function set_tool(tl){
-	tool = tl;
-	tools = document.getElementsByClassName("tool_button");
-	for(let i = 0; i<tools.length; i++){
-		if(tools[i].id == ("button_"+tool)){
-			tools[i].classList.add("selected");
-		}
-		else{
-			tools[i].classList.remove("selected");
-		}
-	}
-}
-
-function update_properties(prop){
-	switch(prop){
-		case('thickness'):
-			thickness = document.getElementById('thickness').value;
-			document.getElementById('thickness_sample_circular').style.height = thickness;
-			document.getElementById('thickness_sample_circular').style.width = thickness;
-			document.getElementById('thickness_sample_circular').style.top = 32 - thickness/2;
-			document.getElementById('thickness_sample_circular').style.left = 64 - thickness/2;
-			break;
-		case('tolerance'):
-			tol = document.getElementById('tolerance').value;
-			document.getElementById('tolerance_sample_dark').style.background = "rgba("+(128 - 128 * tol)+","+(128 - 128 * tol)+","+(128 - 128 * tol)+",1)";
-			document.getElementById('tolerance_sample_bright').style.background = "rgba("+ (128 + 128 * tol) +","+ (128 + 128 * tol) +","+ (128 + 128 * tol) +",1)";
-			break;
-		case('realtime'):
-			simplified_preview = !(document.getElementById('realtime_check').checked);
-			break;
-	}
-}
-
-function update_layer_properties(prop,layer_id){
-	layers.forEach(function(lay) {
-		if (lay.id == layer_id) {
-			switch(prop){
-				case('opacity'):
-					lay.opacity = document.getElementById('opacity_'+layer_id).value;
-					break;
-				case('visible'):
-					lay.visible = document.getElementById('visible_'+layer_id).checked;
-					break;
-				case('mode'):
-					lay.mode = document.getElementById('mode_'+layer_id).value;
-					break;
-			}
-			flatten_image();
-		}
-	})
-}
-
-function update_layer_buttons(){
-	if(activelayer == layers.length-1){
-		document.getElementById("button_layer_up").classList.add("unavailable");
-	}
-	else{
-		document.getElementById("button_layer_up").classList.remove("unavailable");
-	}
-	if(activelayer == 0){
-		document.getElementById("button_layer_down").classList.add("unavailable");
-		document.getElementById("button_flatten").classList.add("unavailable");
-	}
-	else{
-		document.getElementById("button_layer_down").classList.remove("unavailable");
-		document.getElementById("button_flatten").classList.remove("unavailable");
-	}
-}
-
-
-function swap_up(){
-	if(activelayer<layers.length-1){
-		let temp = layers[activelayer + 1];
-		layers[activelayer + 1] = layers[activelayer];
-		layers[activelayer] = temp;	
-		activelayer += 1;
-		reorder_plates();
-		update_layer_buttons();
-		flatten_image();
-	}
-}
-
-function swap_down(){
-	if(activelayer>0){
-		let temp = layers[activelayer - 1];
-		layers[activelayer - 1] = layers[activelayer];
-		layers[activelayer] = temp;	
-		activelayer -= 1;
-		reorder_plates();
-		update_layer_buttons();
-		flatten_image();
-	}
-}
-
-
-function delete_layer(laynum){
-	const layer_id = layers[laynum].id;
-	temp = layers.splice(laynum,1);
-	delete temp;
-	document.getElementById('plate_'+layer_id).remove();
-	if(activelayer==laynum){
-		activelayer = ((laynum > 0) ? laynum-1 : laynum);
-		layers[activelayer].update_color();
-		document.getElementById('plate_'+layers[activelayer].id).classList.add("selected");
-	}
-	flatten_image();
-}
 </script>

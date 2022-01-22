@@ -1,4 +1,4 @@
-class RNG{
+export class RNG{
 	constructor(s = 0) {
 		this.seed = s;
 		this.modulus = 2 ** 32;

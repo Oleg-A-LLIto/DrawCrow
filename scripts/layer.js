@@ -27,7 +27,6 @@ export class Layer {
 		newplate.setAttribute("id","plate"+this.id);
 
 		this.thumbnail = document.createElement("canvas");
-		//this.thumbnail.setAttribute("id","thumb"+this.id);
 		this.thumbnail.classList.add("thumbnail");
 		newplate.appendChild(this.thumbnail);
 		
@@ -90,13 +89,13 @@ export class Layer {
 		checkboxVisible = document.querySelector(`input[name='visible${this.id}']`);
 		checkboxVisible.checked = "true";
 		checkboxVisible.addEventListener('change', (event) => {	event.stopImmediatePropagation();	this.crow.updateLayerProperties('visible', this.id, event.target.checked);	});
-		//checkboxVisible.addEventListener('click', (event) => {	event.stopImmediatePropagation();	});
 		
 		deleteButton = document.querySelector(`input[name='delete${this.id}']`);
 		deleteButton.addEventListener('click', () => {	this.crow.deleteLayer(this.crow.idToNum(this.id));	});
-		
+
 		selectMode = document.querySelector(`select[name='mode${this.id}']`);
 		selectMode.addEventListener('change', (event) => {	this.crow.updateLayerProperties('mode', this.id, event.target.value);	});
+		
 		rightPanel.addEventListener('click', (event) => {	event.stopImmediatePropagation();	});
 
 		this.thumbnail = document.querySelector(`div#plate${this.id}  > .thumbnail`);

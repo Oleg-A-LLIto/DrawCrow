@@ -119,12 +119,11 @@ export class Crow {
 		let imgData = ctx.getImageData(0, 0, this.width, this.height);
 		let data = imgData.data;
 		//iterate over array elements not ints
-		for(let i = 0; i < this.layers.length; i++){
-			if(this.layers[i].visible==false)
+		for(const layer of this.layers){
+			if(!layer.visible)
 				continue;
-			const data2 = this.layers[i].getdata().data;
-			data = this.merge(data, data2, this.layers[i].opacity, this.layers[i].mode);
-			//imgData.data = data;
+			const data2 = layer.getdata().data;
+			data = this.merge(data, data2, layer.opacity, layer.mode);
 		}
 		ctx.putImageData(imgData, 0, 0);
 		Layer.replaceLayer(this.buffer, this.canvas);
@@ -325,12 +324,12 @@ export class Crow {
 	setTool(tl){
 		this.tool = tl;
 		const tools = document.querySelectorAll("div.toolButton");
-		for(let i = 0; i<tools.length; i++){
-			if(tools[i].id == ("button" + this.tool)){
-				tools[i].classList.add("selected");
+		for(const toolButton of tools){
+			if(toolButton.id == ("button" + this.tool)){
+				toolButton.classList.add("selected");
 			}
 			else{
-				tools[i].classList.remove("selected");
+				toolButton.classList.remove("selected");
 			}
 		}
 	}

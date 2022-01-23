@@ -57,7 +57,7 @@
 		</div>
 		<div id="canvasFrame" style="width: 960px; height: 720px; border-width: 2px; border-style: solid; background: url('checkers.png'); text-align: left;">
 			<div style="overflow: hidden;">
-				<canvas width=960px height=720px style="cursor: crosshair; transform-origin: top left; background-image: none;" ></canvas>
+				<canvas width=960px height=720px style="cursor: crosshair; transform-origin: top left;" ></canvas>
 			</div>
 		</div>
 		<div style="display: flex; flex-direction: column;">
@@ -67,26 +67,26 @@
 						<div style="width: 128px; height: 128px;">
 							<div id="colorSample" style="width: 128px; height: 128px; background-color: #000000; position:  relative; z-index:3;">
 							</div>	
-							<div src="checkers.png" style="width:  128px; height: 128px; position:  relative; top: -128px; z-index:2; background-image: url('checkers.png'); background-repeat: no-repeat;">
+							<div style="width:  128px; height: 128px; position:  relative; top: -128px; z-index:2; background-image: url('checkers.png'); background-repeat: repeat;">
 							</div>
 						</div>
 						<clear>
 						</clear>
 					</div>
 					<div style="display: flex; flex-direction: column; text-align: left; justify-content: space-around;">
-						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
+						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png');">
 							<input type="range" class="colorPicker" name="redBar" style="width:128px; background: linear-gradient(to right, #000000, #FF0000);" min="0" max="255" value="0">
 						</div>
 						<br>
-						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
+						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png');">
 							<input type="range" class="colorPicker" name="greenBar" style="width:128px; background: linear-gradient(to right, #000000, #00FF00);" min="0" max="255" value="0">
 						</div>
 						<br>
-						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
+						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png');">
 							<input type="range" class="colorPicker" name="blueBar" style="width:128px; background: linear-gradient(to right, #000000, #0000FF);" min="0" max="255" value="0">
 						</div>
 						<br>
-						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png'); background-repeat: no-repeat;">
+						<div src="checkers.png" style="width:  128px; height: 12px; background-image: url('checkers.png');">
 							<input type="range" class="colorPicker" name="alphaBar" style="width:128px; background: linear-gradient(to right, #00000000, #000000FF);" min="0" max="255" value="255" step="0.01">
 						</div>
 					</div>

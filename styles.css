@@ -21,7 +21,6 @@ body{
 }
 
 canvas{
-  background: url(checkers.png);
   image-rendering: optimizeSpeed;            
   image-rendering: -moz-crisp-edges;         
   image-rendering: -webkit-optimize-contrast;

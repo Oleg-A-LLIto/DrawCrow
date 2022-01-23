@@ -110,7 +110,7 @@ canvas{
 }
 
 .popup{
-  position: absolute;
+  position: fixed;
   z-index: 6;
   left: auto;
   top: 45%;
@@ -127,7 +127,7 @@ canvas{
 }
 
 .mute{
-  position: absolute;
+  position: fixed;
   z-index: 5;
   left: 0%;
   top: 0%;

@@ -17,14 +17,17 @@ export class Crow {
 		this.simplifiedPreview = true;
 		this.actionOngoing = false;
 		this.Random = new RNG();
-		this.canvas = document.querySelector('div#canvasFrame > canvas');
+		this.canvas = document.querySelector('div#canvasFrame > div > canvas');
 		this.scale = 1;
+		this.artwork = "My masterpiece";
 	}
 
 	startDrawing(){ 
 		const frame = document.querySelector('div#canvasFrame');
-		this.width = document.querySelector('.mute > div > input:nth-of-type(1)').value;
-		this.height = document.querySelector('.mute > div > input:nth-of-type(2)').value;
+		this.width = document.querySelector(`input[name='pictureWidth']`).value;
+		this.height = document.querySelector(`input[name='pictureHeight']`).value;
+		this.artwork = document.querySelector(`input[name='pictureName']`).value;
+		const canvasWrapper = document.querySelector(`div#canvasFrame > div`);
 		this.canvas.width = this.width;
 		this.canvas.height = this.height;
 		const ratio = this.width / this.height;
@@ -43,7 +46,10 @@ export class Crow {
 				frame.style.overflowX = "hidden";
 			}
 		}
+		this.thickness /= this.scale; 
 		this.canvas.style.transform = `scale(${this.scale})`;
+		canvasWrapper.style.width = this.width * this.scale;
+		canvasWrapper.style.height = this.height * this.scale;
 		this.buffer = document.createElement('canvas');
 		this.buffer.width = this.width;
 		this.buffer.height = this.height;
@@ -54,17 +60,11 @@ export class Crow {
 	savefile(){
 	    const image = this.canvas.toDataURL("image/png");
 	    const link = document.createElement('a');
-		const tempwidth = this.canvas.width;
-		const tempheight = this.canvas.height;
-		this.canvas.width = this.width;
-		this.canvas.height = this.height;
 		link.href = image;
-		link.download = 'Masterpiece.png';
+		link.download = this.artwork+'.png';
 		document.body.appendChild(link);
 		link.click();
 		document.body.removeChild(link);
-		this.canvas.width = tempwidth;
-		this.canvas.height = tempheight;
 		//window.location.href=image; 
 	}
 
@@ -73,7 +73,7 @@ export class Crow {
 		const plates = document.getElementsByClassName("layerPlate");
 		for(let i = this.layers.length-1; i >= 0; i--){
 			for(let j = 0; j < plates.length; j++){
-			    if(plates[j].id == ("plate_"+this.layers[i].id)){
+			    if(plates[j].id == ("plate"+this.layers[i].id)){
 					ll.append(plates[j]);
 					break;
 				}
@@ -82,15 +82,10 @@ export class Crow {
 	}
 
 	switchToLayer(layerId){
-		if(event.target.classList.contains("layerSetting")){
-			return;
-		}
-		alert(this.activelayer);
 		this.activelayer = this.idToNum(layerId);
 		const plates = document.getElementsByClassName("layerPlate");
 		for(let i = 0; i<plates.length; i++){
-			alert(this.activelayer);
-		    if(plates[i].id == ("plate_"+this.layers[this.activelayer].id)){
+		    if(plates[i].id == ("plate"+this.layers[this.activelayer].id)){
 				plates[i].classList.add("selected");
 			}
 			else{
@@ -350,6 +345,7 @@ export class Crow {
 				thicknessSample.style.width = this.thickness;
 				thicknessSample.style.top = 32 - this.thickness/2;
 				thicknessSample.style.left = 64 - this.thickness/2;
+				this.thickness /= this.scale;
 				break;
 			case('tolerance'):
 				this.tol = document.querySelector("input[name='toleranceSetting']").value;
@@ -359,6 +355,7 @@ export class Crow {
 				break;
 			case('realtime'):
 				this.simplifiedPreview = !(document.getElementById('realtimeCheck').checked);
+				alert(this.simplifiedPreview);
 				break;
 		}
 	}
@@ -369,18 +366,18 @@ export class Crow {
 			if (lay.id == layerId) {
 				switch(prop){
 					case('opacity'):
-						lay.opacity = document.getElementById('opacity_'+layerId).value;
+						lay.opacity = document.querySelector(`input[name='opacity${layerId}']`).value;
 						break;
 					case('visible'):
-						lay.visible = document.getElementById('visible_'+layerId).checked;
+						lay.visible = document.querySelector(`input[name='visible${layerId}']`).checked;
 						break;
 					case('mode'):
-						lay.mode = document.getElementById('mode_'+layerId).value;
+						lay.mode = document.querySelector(`select[name='mode${layerId}']`).value;
 						break;
 				}
-				this.flattenImage();
 			}
 		})
+		this.flattenImage();
 	}
 
 	updateLayerButtons(){
@@ -429,11 +426,11 @@ export class Crow {
 		const layerId = this.layers[laynum].id;
 		this.layers.splice(laynum,1);
 		//delete temp;
-		document.getElementById('plate_'+layerId).remove();
+		document.getElementById('plate'+layerId).remove();
 		if(this.activelayer === laynum){
 			this.activelayer = ((laynum > 0) ? laynum-1 : laynum);
 			this.layers[this.activelayer].updateColor();
-			document.getElementById('plate_'+this.layers[this.activelayer].id).classList.add("selected");
+			document.getElementById('plate'+this.layers[this.activelayer].id).classList.add("selected");
 		}
 		this.flattenImage();
 	}

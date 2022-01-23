@@ -7,7 +7,7 @@ function main()
 {
 	document.querySelector('.popup .button').addEventListener('click',function(){	crow.startDrawing()	});
 	
-	const canvas = document.querySelector('div#canvasFrame > canvas');
+	const canvas = document.querySelector('div#canvasFrame > div > canvas');
 	canvas.addEventListener('mousedown', function(){	crow.actionStart()	});
 	canvas.addEventListener('click', function(){	crow.actionEnd()	}); 
 	canvas.addEventListener('mouseleave', function(){	crow.actionInterrupted()	});
@@ -22,8 +22,9 @@ function main()
 	document.querySelector('div:nth-of-type(1) > div:nth-of-type(6)').addEventListener('click', function(){	crow.cancel()	});
 	document.querySelector('div:nth-of-type(1) > div:nth-of-type(7)').addEventListener('click', function(){	crow.savefile()	});
 
-	document.querySelector("input[name='thicknessSetting']").addEventListener('click', function(){	crow.updateProperties('thickness')	});
-	document.querySelector("input[name='toleranceSetting']").addEventListener('click', function(){	crow.updateProperties('tolerance')	});
+	document.querySelector("input[name='thicknessSetting']").addEventListener('change', function(){	crow.updateProperties('thickness')	});
+	document.querySelector("input[name='toleranceSetting']").addEventListener('change', function(){	crow.updateProperties('tolerance')	});
+	document.querySelector("input[name='realtimeCheck']").addEventListener('click', function(){	alert("helo im under the wota"); crow.updateProperties('realtimeCheck')	});
 	
 	document.querySelector("input[name='redBar']").addEventListener('change', function(){	crow.updateColor('bar')	});
 	document.querySelector("input[name='greenBar']").addEventListener('change', function(){	crow.updateColor('bar')	});
@@ -35,9 +36,9 @@ function main()
 	document.querySelector("input[name='blueNumber']").addEventListener('change', function(){	crow.updateColor('number')	});
 	document.querySelector("input[name='alphaNumber']").addEventListener('change', function(){	crow.updateColor('number')	});
 
-	document.querySelector('body > div:nth-child(3) > div > div:nth-child(3) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div').addEventListener('click', function(){	crow.newLayer()	});
-	document.querySelector('body > div:nth-child(3) > div > div:nth-child(3) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div').addEventListener('click', function(){	crow.flattenDown()	});
-	document.querySelector('body > div:nth-child(3) > div > div:nth-child(3) > div:nth-child(3) > div:nth-child(1) > div:nth-child(3) > div').addEventListener('click', function(){	crow.swapDown()	});
-	document.querySelector('body > div:nth-child(3) > div > div:nth-child(3) > div:nth-child(3) > div:nth-child(1) > div:nth-child(4) > div').addEventListener('click', function(){	crow.swapUp()	});
+	document.querySelector('div:nth-of-type(1) > .button.layersButton').addEventListener('click', function(){	crow.newLayer()	});
+	document.querySelector('div:nth-of-type(2) > .button.layersButton').addEventListener('click', function(){	crow.flattenDown()	});
+	document.querySelector('div:nth-of-type(3) > .button.layersButton').addEventListener('click', function(){	crow.swapDown()	});
+	document.querySelector('div:nth-of-type(4) > .button.layersButton').addEventListener('click', function(){	crow.swapUp()	});
 }
 

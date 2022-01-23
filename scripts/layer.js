@@ -22,17 +22,81 @@ export class Layer {
 		this.theight = Math.min(36,this.h);
 
 		const newplate = document.createElement("div");
-		newplate.addEventListener('click', function(){	crow.switchToLayer(this.id)	}); 
+		newplate.addEventListener('click', () => {	this.crow.switchToLayer(this.id)	}); 
 		newplate.classList.add("layerPlate");
-		newplate.setAttribute("id","plate_"+this.id);
+		newplate.setAttribute("id","plate"+this.id);
+
 		this.thumbnail = document.createElement("canvas");
-		this.thumbnail.setAttribute("id","thumb_"+this.id);
+		//this.thumbnail.setAttribute("id","thumb"+this.id);
 		this.thumbnail.classList.add("thumbnail");
 		newplate.appendChild(this.thumbnail);
-		newplate.innerHTML += '<div style="width:130px;">	Layer'+this.id+'	<input type="range" id="opacity_'+this.id+'" style="width:128px;" min="0" max="100" value="100" checked="true" onchange="updateLayerProperties(\'opacity\','+this.id+')"></div><div style="width:72px;">	<div style="display:flex; justify-content: space-around;">		<label class="checkContainer">			<img src="ui/view.png">			<input type="checkbox" id="visible_'+this.id+'" checked="true" onclick="updateLayerProperties(\'visible\','+this.id+')">			<span class="checkmark"></span>		</label>		<img class="button layerSetting" style="align-self: center;" src="ui/delete.png" onclick="deleteLayer(this.idToNum('+this.id+'))">	</div>	<select id="mode_'+this.id+'" onchange="updateLayerProperties(\'mode\','+this.id+')">	  <option value="normal" selected>Normal</option>	  <option value="add">Add</option>	  <option value="dissolve">Dissolve</option>	  <option value="negate">Negate</option>	</select></div>';
+		
+		const propertiesContainer = document.createElement("div");
+		propertiesContainer.style.width = 130;
+		propertiesContainer.innerText += "Layer-"+this.id;
+		newplate.appendChild(propertiesContainer);
+
+		let opacitySlider = document.createElement("input");
+		opacitySlider.type = "range";
+		opacitySlider.name = "opacity"+this.id;
+    	opacitySlider.style.width = 128;
+		opacitySlider.min = 0;
+		opacitySlider.max = 100;
+		propertiesContainer.appendChild(opacitySlider);
+
+		const rightPanel = document.createElement("div");
+		rightPanel.style.width = 72;
+		newplate.appendChild(rightPanel);
+
+		const upperRightPanel = document.createElement("div");
+		upperRightPanel.style.justifyContent = "space-around";
+		upperRightPanel.style.display = "flex";
+		rightPanel.appendChild(upperRightPanel);
+		
+
+		const visibilityLabel = document.createElement("label");
+		visibilityLabel.classList.add("checkContainer");
+		visibilityLabel.innerHTML += '<img src="ui/view.png">';
+		upperRightPanel.appendChild(visibilityLabel);
+		
+		let checkboxVisible = document.createElement("input");
+		checkboxVisible.type = "checkbox";
+		checkboxVisible.name = "visible"+this.id;
+		visibilityLabel.appendChild(checkboxVisible);
+
+		visibilityLabel.innerHTML += '<span class="checkmark"></span>';
+		
+		let deleteButton = document.createElement("input");
+		deleteButton.type = "image";
+		deleteButton.src = "ui/delete.png";
+		deleteButton.style.alignSelf = "center";
+		deleteButton.name = "delete"+this.id;
+		upperRightPanel.appendChild(deleteButton);
+
+		let selectMode = document.createElement("select");
+		selectMode.name = "mode"+this.id;
+		selectMode.innerHTML = `<option value="normal" selected>Normal</option>	  <option value="add">Add</option>	  
+								<option value="dissolve">Dissolve</option>	  <option value="negate">Negate</option>`
+		rightPanel.appendChild(selectMode);
+		
 		const ll = document.getElementById("layerslist");
 		ll.insertBefore(newplate, ll.firstChild);
-		this.thumbnail = document.getElementById("thumb_"+this.id);
+
+		opacitySlider = document.querySelector(`input[name='opacity${this.id}']`);
+		opacitySlider.value = "100";
+		opacitySlider.addEventListener('change', () => {	this.crow.updateLayerProperties('opacity', this.id);	}, true);
+
+		checkboxVisible = document.querySelector(`input[name='visible${this.id}']`);
+		checkboxVisible.checked = "true";
+		checkboxVisible.addEventListener('change', () => {	this.crow.updateLayerProperties('visible', this.id);	}, true);
+		
+		deleteButton = document.querySelector(`input[name='delete${this.id}']`);
+		deleteButton.addEventListener('click', () => {	this.crow.deleteLayer(this.crow.idToNum(this.id));	}, true);
+		
+		selectMode = document.querySelector(`select[name='mode${this.id}']`);
+		selectMode.addEventListener('click', () => {	this.crow.updateLayerProperties('mode', this.id);	}, true);
+
+		this.thumbnail = document.querySelector(`div#plate${this.id}  > .thumbnail`);
 		this.thumbnail.width = this.twidth;
 		this.thumbnail.height = this.theight;
 		this.thumbnail.style.width = this.twidth;
@@ -253,8 +317,8 @@ export class Layer {
 		var imgData = ctx.getImageData(0, 0, this.twidth, this.theight);
 		var data = imgData.data;
 		var data2 = this.getdata().data;
-		const widthRatio = this.w/this.twidth;
-		const heightRatio = this.h/this.theight;
+		const widthRatio = Math.floor(this.w/this.twidth);
+		const heightRatio = Math.floor(this.h/this.theight);
 		for (var i = 0; i < this.theight; i += 1) {
 			for (var j = 0; j < this.twidth*4; j += 4) {
 				const pos1 = i*this.twidth*4+j;

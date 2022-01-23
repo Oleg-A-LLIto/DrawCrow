@@ -112,13 +112,18 @@ canvas{
 .popup{
   position: absolute;
   z-index: 6;
-  left: 40%;
-  top: 30%;
-  width: 20%;
-  height: 20%;
+  left: auto;
+  top: 45%;
+  transform-origin: bottom;
+  -ms-transform: translateY(-50%) scale(1.4);
+  transform: translateY(-50%) scale(1.4);
+  width: 448px;
+  height: 256px;
   background-color: #222831;
   outline: 1px solid;
   outline-color: #FFF;
+  display: inline-flex;
+  justify-content:space-between;
 }
 
 .mute{
@@ -130,6 +135,8 @@ canvas{
   height: 100%;
   background-color: #00000056;
   outline-color: #FFF;
+  display: flex;
+  justify-content: center;
 }
 
 input[type=range] {

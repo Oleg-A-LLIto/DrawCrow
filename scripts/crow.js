@@ -70,11 +70,11 @@ export class Crow {
 
 	reorderPlates(){
 		const ll = document.getElementById("layerslist");
-		const plates = document.getElementsByClassName("layerPlate");
+		const plates = document.querySelectorAll(".layerPlate");
 		for(let i = this.layers.length-1; i >= 0; i--){
-			for(let j = 0; j < plates.length; j++){
-			    if(plates[j].id == ("plate"+this.layers[i].id)){
-					ll.append(plates[j]);
+			for(const plate of plates){
+				if(plate.id == ("plate"+this.layers[i].id)){
+					ll.append(plate);
 					break;
 				}
 			}
@@ -83,13 +83,13 @@ export class Crow {
 
 	switchToLayer(layerId){
 		this.activelayer = this.idToNum(layerId);
-		const plates = document.getElementsByClassName("layerPlate");
-		for(let i = 0; i<plates.length; i++){
-		    if(plates[i].id == ("plate"+this.layers[this.activelayer].id)){
-				plates[i].classList.add("selected");
+		const plates = document.querySelectorAll(".layerPlate");
+		for(const plate of plates){
+			if(plate.id == ("plate"+this.layers[this.activelayer].id)){
+				plate.classList.add("selected");
 			}
 			else{
-				plates[i].classList.remove("selected");
+				plate.classList.remove("selected");
 			}
 		}
 		this.layers[this.activelayer].updateColor();
@@ -102,7 +102,6 @@ export class Crow {
 				return i;
 			}
 		}
-		
 	}
 
 	newLayer(){
@@ -360,23 +359,23 @@ export class Crow {
 		}
 	}
 
-	updateLayerProperties(prop,layerId){
+	updateLayerProperties(prop, layerId, value){
 		//for of
-		this.layers.forEach(function(lay) {
-			if (lay.id == layerId) {
+		for(const layer of this.layers){
+			if (layer.id == layerId) {
 				switch(prop){
 					case('opacity'):
-						lay.opacity = document.querySelector(`input[name='opacity${layerId}']`).value;
+						layer.opacity = value;
 						break;
 					case('visible'):
-						lay.visible = document.querySelector(`input[name='visible${layerId}']`).checked;
+						layer.visible = value;
 						break;
 					case('mode'):
-						lay.mode = document.querySelector(`select[name='mode${layerId}']`).value;
+						layer.mode = value;
 						break;
 				}
 			}
-		})
+		}
 		this.flattenImage();
 	}
 
@@ -428,10 +427,16 @@ export class Crow {
 		//delete temp;
 		document.getElementById('plate'+layerId).remove();
 		if(this.activelayer === laynum){
-			this.activelayer = ((laynum > 0) ? laynum-1 : laynum);
+			this.activelayer = ((laynum > 0) ? laynum-1 : 0);
 			this.layers[this.activelayer].updateColor();
 			document.getElementById('plate'+this.layers[this.activelayer].id).classList.add("selected");
 		}
+		else{
+			if(this.activelayer > laynum){
+				this.activelayer -= 1;
+			}
+		}
 		this.flattenImage();
+		this.updateLayerButtons();
 	}
 }

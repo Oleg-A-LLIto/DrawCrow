@@ -84,17 +84,20 @@ export class Layer {
 
 		opacitySlider = document.querySelector(`input[name='opacity${this.id}']`);
 		opacitySlider.value = "100";
-		opacitySlider.addEventListener('change', () => {	this.crow.updateLayerProperties('opacity', this.id);	}, true);
+		opacitySlider.addEventListener('change', (event) => {	event.stopImmediatePropagation();	this.crow.updateLayerProperties('opacity', this.id, event.target.value);	});
+		opacitySlider.addEventListener('click', (event) => {	event.stopImmediatePropagation();	});
 
 		checkboxVisible = document.querySelector(`input[name='visible${this.id}']`);
 		checkboxVisible.checked = "true";
-		checkboxVisible.addEventListener('change', () => {	this.crow.updateLayerProperties('visible', this.id);	}, true);
+		checkboxVisible.addEventListener('change', (event) => {	event.stopImmediatePropagation();	this.crow.updateLayerProperties('visible', this.id, event.target.checked);	});
+		//checkboxVisible.addEventListener('click', (event) => {	event.stopImmediatePropagation();	});
 		
 		deleteButton = document.querySelector(`input[name='delete${this.id}']`);
-		deleteButton.addEventListener('click', () => {	this.crow.deleteLayer(this.crow.idToNum(this.id));	}, true);
+		deleteButton.addEventListener('click', () => {	this.crow.deleteLayer(this.crow.idToNum(this.id));	});
 		
 		selectMode = document.querySelector(`select[name='mode${this.id}']`);
-		selectMode.addEventListener('click', () => {	this.crow.updateLayerProperties('mode', this.id);	}, true);
+		selectMode.addEventListener('change', (event) => {	this.crow.updateLayerProperties('mode', this.id, event.target.value);	});
+		rightPanel.addEventListener('click', (event) => {	event.stopImmediatePropagation();	});
 
 		this.thumbnail = document.querySelector(`div#plate${this.id}  > .thumbnail`);
 		this.thumbnail.width = this.twidth;

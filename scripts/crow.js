@@ -24,9 +24,31 @@ export class Crow {
 
 	startDrawing(){ 
 		const frame = document.querySelector('div#canvasFrame');
-		this.width = document.querySelector(`input[name='pictureWidth']`).value;
-		this.height = document.querySelector(`input[name='pictureHeight']`).value;
-		this.artwork = document.querySelector(`input[name='pictureName']`).value;
+		const widthField = document.querySelector(`input[name='pictureWidth']`);
+		const heightField = document.querySelector(`input[name='pictureHeight']`);
+		const nameField =  document.querySelector(`input[name='pictureName']`);
+		let wrong = false;
+		widthField.style.backgroundColor = "#494E56";
+		heightField.style.backgroundColor = "#494E56";
+		nameField.style.backgroundColor = "#494E56";
+		if(widthField.value <= 0){
+			widthField.style.backgroundColor = "#FF4040";
+			wrong = true;
+		}
+		if(heightField.value <= 0){
+			heightField.style.backgroundColor = "#FF4040";
+			wrong = true;
+		}
+		if(nameField.value.length === 0){
+			nameField.style.backgroundColor = "#FF4040";
+			wrong = true;
+		}
+		if(wrong){
+			return;
+		}
+		this.width = widthField.value;
+		this.height = heightField.value;
+		this.artwork = nameField.value;
 		const canvasWrapper = document.querySelector(`div#canvasFrame > div`);
 		this.canvas.width = this.width;
 		this.canvas.height = this.height;

@@ -334,32 +334,33 @@ export class Crow {
 		}
 	}
 
-	updateProperties(prop){
+	updateProperties(prop, value){
 		switch(prop){
 			case('thickness'):
 				const thicknessSample = document.getElementById('thicknessSampleCircular');
-				this.thickness = document.querySelector("input[name='thicknessSetting']").value;
+				this.thickness = value;
 				thicknessSample.style.height = this.thickness;
 				thicknessSample.style.width = this.thickness;
 				thicknessSample.style.top = 32 - this.thickness/2;
 				thicknessSample.style.left = 64 - this.thickness/2;
 				this.thickness /= this.scale;
-				break;
+				return;
 			case('tolerance'):
-				this.tol = document.querySelector("input[name='toleranceSetting']").value;
+				this.tol = value;
 				let brightness = 128 - 128 * this.tol;
 				document.getElementById('toleranceSampleDark').style.background = `rgba(${brightness},${brightness},${brightness},1)`;
-				document.getElementById('toleranceSampleBright').style.background = "rgba("+ (128 + 128 * this.tol) +","+ (128 + 128 * this.tol) +","+ (128 + 128 * this.tol) +",1)";
-				break;
-			case('realtime'):
-				this.simplifiedPreview = !(document.getElementById('realtimeCheck').checked);
-				alert(this.simplifiedPreview);
-				break;
+				brightness = 128 + 128 * this.tol;
+				document.getElementById('toleranceSampleBright').style.background = `rgba(${brightness},${brightness},${brightness},1)`;
+				return;
+			case('realtimeCheck'):
+				this.simplifiedPreview = !value;
+				return;
+			default:
+				throw new Error("Trying to change an unknown property");
 		}
 	}
 
 	updateLayerProperties(prop, layerId, value){
-		//for of
 		for(const layer of this.layers){
 			if (layer.id == layerId) {
 				switch(prop){

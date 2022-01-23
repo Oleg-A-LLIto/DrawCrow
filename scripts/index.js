@@ -22,9 +22,9 @@ function main()
 	document.querySelector('div:nth-of-type(1) > div:nth-of-type(6)').addEventListener('click', function(){	crow.cancel()	});
 	document.querySelector('div:nth-of-type(1) > div:nth-of-type(7)').addEventListener('click', function(){	crow.savefile()	});
 
-	document.querySelector("input[name='thicknessSetting']").addEventListener('change', function(){	crow.updateProperties('thickness')	});
-	document.querySelector("input[name='toleranceSetting']").addEventListener('change', function(){	crow.updateProperties('tolerance')	});
-	document.querySelector("input[name='realtimeCheck']").addEventListener('click', function(){	alert("helo im under the wota"); crow.updateProperties('realtimeCheck')	});
+	document.querySelector("input[name='thicknessSetting']").addEventListener('change', (event) => {	crow.updateProperties('thickness',event.target.value)	});
+	document.querySelector("input[name='toleranceSetting']").addEventListener('change', (event) => {	crow.updateProperties('tolerance',event.target.value)	});
+	document.querySelector("input[name='realtimeCheck']").addEventListener('click', (event) => {	crow.updateProperties('realtimeCheck',event.target.checked)	});
 	
 	document.querySelector("input[name='redBar']").addEventListener('change', function(){	crow.updateColor('bar')	});
 	document.querySelector("input[name='greenBar']").addEventListener('change', function(){	crow.updateColor('bar')	});

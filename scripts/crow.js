@@ -95,7 +95,7 @@ export class Crow {
 		const plates = document.querySelectorAll(".layerPlate");
 		for(let i = this.layers.length-1; i >= 0; i--){
 			for(const plate of plates){
-				if(plate.id == ("plate"+this.layers[i].id)){
+				if(plate.id === ("plate"+this.layers[i].id)){
 					ll.append(plate);
 					break;
 				}
@@ -107,7 +107,7 @@ export class Crow {
 		this.activelayer = this.idToNum(layerId);
 		const plates = document.querySelectorAll(".layerPlate");
 		for(const plate of plates){
-			if(plate.id == ("plate"+this.layers[this.activelayer].id)){
+			if(plate.id === ("plate"+this.layers[this.activelayer].id)){
 				plate.classList.add("selected");
 			}
 			else{
@@ -135,7 +135,7 @@ export class Crow {
 	flattenImage(){
 		const ctx = this.canvas.getContext('2d');
 		ctx.clearRect(0, 0, this.width, this.height);
-		if(this.layers.length == 0){
+		if(this.layers.length === 0){
 			return;
 		}
 		let imgData = ctx.getImageData(0, 0, this.width, this.height);
@@ -347,7 +347,7 @@ export class Crow {
 		this.tool = tl;
 		const tools = document.querySelectorAll("div.toolButton");
 		for(const toolButton of tools){
-			if(toolButton.id == ("button" + this.tool)){
+			if(toolButton.id === ("button" + this.tool)){
 				toolButton.classList.add("selected");
 			}
 			else{
@@ -384,7 +384,7 @@ export class Crow {
 
 	updateLayerProperties(prop, layerId, value){
 		for(const layer of this.layers){
-			if (layer.id == layerId) {
+			if (layer.id === layerId) {
 				switch(prop){
 					case('opacity'):
 						layer.opacity = value;

@@ -21,7 +21,7 @@ export class Color{
 	}
 
 	compareStrict(col2){
-		return ((this.r == col2.r)&&(this.g == col2.g)&&(this.b == col2.b)&&(this.a == col2.a));
+		return ((this.r === col2.r)&&(this.g === col2.g)&&(this.b === col2.b)&&(this.a === col2.a));
 	}
 
 	negative(){

@@ -195,7 +195,7 @@ export class Layer {
 		if(oldcolor.compareStrict(this.crow.curcol)){
 			return;
 		}
-		let stk = [];
+		const stk = [];
 		let lim = 2000000;
 		stk.push({x: x,y: y, dir: -1});
 		while ((stk.length > 0) && (lim >=0)){
@@ -259,7 +259,7 @@ export class Layer {
 
 	/*
 	getpixel(ctx,x,y){
-		var pix = ctx.getImageData(x,y,1,1).data;
+		const pix = ctx.getImageData(x,y,1,1).data;
 		return new Color(pix[0],pix[1],pix[2],pix[3]);
 	}
 	*/
@@ -314,15 +314,15 @@ export class Layer {
 	}
 
 	updateThumbnail() {
-		var ctx = this.thumbnail.getContext('2d');
+		const ctx = this.thumbnail.getContext('2d');
 		ctx.clearRect(0,0,this.twidth,this.theight);
-		var imgData = ctx.getImageData(0, 0, this.twidth, this.theight);
-		var data = imgData.data;
-		var data2 = this.getdata().data;
+		const imgData = ctx.getImageData(0, 0, this.twidth, this.theight);
+		const data = imgData.data;
+		const data2 = this.getdata().data;
 		const widthRatio = Math.floor(this.w/this.twidth);
 		const heightRatio = Math.floor(this.h/this.theight);
-		for (var i = 0; i < this.theight; i += 1) {
-			for (var j = 0; j < this.twidth*4; j += 4) {
+		for (let i = 0; i < this.theight; i += 1) {
+			for (let j = 0; j < this.twidth*4; j += 4) {
 				const pos1 = i*this.twidth*4+j;
 				const pos2 = i*this.w*4*heightRatio+j*widthRatio;
 				data[pos1] = data2[pos2];
